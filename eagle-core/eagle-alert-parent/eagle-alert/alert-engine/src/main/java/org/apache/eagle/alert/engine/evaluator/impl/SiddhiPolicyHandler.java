@@ -22,6 +22,7 @@ import org.apache.eagle.alert.engine.Collector;
 import org.apache.eagle.alert.engine.coordinator.PolicyDefinition;
 import org.apache.eagle.alert.engine.coordinator.StreamDefinition;
 import org.apache.eagle.alert.engine.coordinator.StreamDefinitionNotFoundException;
+import org.apache.eagle.alert.engine.coordinator.PolicyDefinition.PolicyStatus;
 import org.apache.eagle.alert.engine.evaluator.PolicyHandlerContext;
 import org.apache.eagle.alert.engine.evaluator.PolicyStreamHandler;
 import org.apache.eagle.alert.engine.model.AlertStreamEvent;
@@ -111,15 +112,19 @@ public class SiddhiPolicyHandler implements PolicyStreamHandler {
             LOG.error("Failed to create siddhi runtime for policy: {}, siddhi plan: \n\n{}\n",context.getPolicyDefinition().getName(),plan,parserException);
             throw parserException;
         }
-        for(final String outputStream:policy.getOutputStreams()){
-            if(executionRuntime.getStreamDefinitionMap().containsKey(outputStream)) {
-                this.executionRuntime.addCallback(outputStream,
-                        new AlertStreamCallback(
-                        outputStream, SiddhiDefinitionAdapter.convertFromSiddiDefinition(executionRuntime.getStreamDefinitionMap().get(outputStream))
-                        ,collector, context));
-            } else {
-                throw new IllegalStateException("Undefined output stream "+outputStream);
-            }
+        if (policy.getPolicyStatus() == PolicyStatus.nuked) {
+        	LOG.info("Policy %s is nuked, skip alert during alert stream callback!", policy.getName());
+        } else {
+	        for(final String outputStream:policy.getOutputStreams()){
+	            if(executionRuntime.getStreamDefinitionMap().containsKey(outputStream)) {
+	                this.executionRuntime.addCallback(outputStream,
+	                        new AlertStreamCallback(
+	                        outputStream, SiddhiDefinitionAdapter.convertFromSiddiDefinition(executionRuntime.getStreamDefinitionMap().get(outputStream))
+	                        ,collector, context));
+	            } else {
+	                throw new IllegalStateException("Undefined output stream "+outputStream);
+	            }
+	        }
         }
         this.executionRuntime.start();
         this.context = context;
