@@ -42,6 +42,7 @@ public class PolicyDefinition implements Serializable {
 
     // one stream only have one partition in one policy, since we don't support stream alias
     private List<StreamPartition> partitionSpec = new ArrayList<StreamPartition>();
+    private boolean dedicated;
 
     // runtime configuration for policy, these are user-invisible
     private int parallelismHint = 1;
@@ -106,6 +107,14 @@ public class PolicyDefinition implements Serializable {
         this.partitionSpec.add(par);
     }
 
+    public boolean isDedicated() {
+        return dedicated;
+    }
+
+    public void setDedicated(boolean dedicated) {
+        this.dedicated = dedicated;
+    }
+
     public int getParallelismHint() {
         return parallelismHint;
     }
@@ -153,7 +162,7 @@ public class PolicyDefinition implements Serializable {
             && (another.definition != null && another.definition.equals(this.definition))
             && Objects.equals(this.definition, another.definition)
             && CollectionUtils.isEqualCollection(another.partitionSpec, this.partitionSpec)
-             && another.parallelismHint == this.parallelismHint
+            && another.parallelismHint == this.parallelismHint
             ) {
             return true;
         }
