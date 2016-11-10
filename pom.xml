@@ -51,6 +51,17 @@
         <url>scm:git:git@github.com:apache/incubator-eagle.git</url>
         <tag>HEAD</tag>
     </scm>
+    <distributionManagement>
+        <repository>
+            <id>ebaycentral.releases</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ebaycentral.snapshots</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <issueManagement>
         <system>JIRA</system>
         <url>https://issues.apache.org/jira/browse/EAGLE</url>
