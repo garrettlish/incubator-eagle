@@ -1209,6 +1209,59 @@
                     <artifactId>templating-maven-plugin</artifactId>
                     <version>${templating-maven.version}</version>
                 </plugin>
+                
+                <!--RELEASE PLUGINS-->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.9.1</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <id>parse-version</id>
+                            <goals>
+                                <goal>parse-version</goal>
+                            </goals>
+                            <configuration>
+                                <propertyPrefix>parsedVersion</propertyPrefix>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>bat.crimea.ua</groupId>
+                    <artifactId>maven-increment-plugin</artifactId>
+                    <version>1.20</version>
+                    <executions>
+                        <execution>
+                            <id>increment-version</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>touch</goal>
+                            </goals>
+                            <configuration>
+                                <values>
+                                    <valueItem>
+                                        <value>${parsedVersion.incrementalVersion}</value>
+                                        <valueClassName>java.lang.Integer</valueClassName>
+                                        <incrementValue>1</incrementValue>
+                                        <outputPropertyName>nextIncrementalVersion</outputPropertyName>
+                                    </valueItem>
+                                </values>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.2</version>
+                    <configuration>
+                        <releaseVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}-ebay</releaseVersion>
+                        <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${nextIncrementalVersion}-SNAPSHOT</developmentVersion>
+                        <tagNameFormat>@{project.version}-ebay</tagNameFormat>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1325,9 +1378,65 @@
                     <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>bat.crimea.ua</groupId>
+                <artifactId>maven-increment-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+            
         </plugins>
     </build>
     <repositories>
+        
+        <!-- ebayCentral -->
+        <repository>
+            <id>ebaycentral.releases</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ebaycentral.snapshots</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ebaycentral.thirdparty</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/thirdparty/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ebaycentral.central</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/central/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        
         <repository>
             <id>maven.repo1</id>
             <name>Maven Repo1 Repository</name>
@@ -1374,6 +1483,18 @@
             <id>scala-tools.release</id>
             <name>Scala-Tools Release Repository</name>
             <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+        
+        <!-- ebaycentral -->
+        <pluginRepository>
+            <id>ebaycentral.plugins</id>
+            <url>http://ebaycentral.qa.ebay.com/content/repositories/plugins/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 </project>
