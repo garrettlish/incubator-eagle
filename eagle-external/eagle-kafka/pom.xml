@@ -20,7 +20,7 @@
     <parent>
         <artifactId>eagle-external-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-ebay</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
