@@ -21,10 +21,10 @@
 	<parent>
 		<groupId>org.apache.eagle</groupId>
 		<artifactId>eagle-security-parent</artifactId>
-		<version>0.5.0-ebay</version>
+		<version>0.5.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>eagle-security-hive</artifactId>
-	<name>eagle-security-hive</name>
+	<name>Eagle::App::Security::HiveSecurity</name>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 
@@ -84,6 +84,12 @@
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-exec</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.pentaho</groupId>
+					<artifactId>pentaho-aggdesigner-algorithm</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>

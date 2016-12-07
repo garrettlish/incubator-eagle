@@ -22,11 +22,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-security-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>eagle-security-hdfs-web</artifactId>
-    <name>eagle-security-hdfs-web</name>
+    <name>Eagle::App::Security::HdfsService</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>

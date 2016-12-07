@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-query-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>eagle-antlr</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-antlr</name>
+    <name>Eagle::Core::Query::AntlrCompiler</name>
 
     <dependencies>
         <dependency>

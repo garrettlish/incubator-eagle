@@ -23,10 +23,10 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
     <artifactId>eagle-server-assembly</artifactId>
-    <name>eagle-server-assembly</name>
+    <name>Eagle::Server::Assembly</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>

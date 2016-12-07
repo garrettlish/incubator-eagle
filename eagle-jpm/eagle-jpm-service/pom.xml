@@ -22,11 +22,12 @@
     <parent>
         <artifactId>eagle-jpm-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-jpm-service</artifactId>
+    <name>Eagle::App::JPM::JobService</name>
 
     <dependencies>
         <dependency>

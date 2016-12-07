@@ -22,12 +22,12 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-embed-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>eagle-embed-server</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-embed-server</name>
+    <name>Eagle::Core::Embed::EmbedServer</name>
     <dependencies>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>

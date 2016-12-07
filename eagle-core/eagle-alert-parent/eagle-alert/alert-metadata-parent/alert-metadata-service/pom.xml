@@ -17,10 +17,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>alert-metadata-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>alert-metadata-service</artifactId>
+    <name>Eagle::Core::Alert::MetadataService</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -83,7 +84,18 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

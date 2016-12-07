@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-core</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>eagle-metric</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-metric</name>
+    <name>Eagle::Core::Metric</name>
 
     <dependencies>
         <dependency>

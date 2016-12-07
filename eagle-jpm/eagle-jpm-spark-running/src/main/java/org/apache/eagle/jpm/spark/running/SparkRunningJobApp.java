@@ -29,15 +29,15 @@ import com.typesafe.config.Config;
 public class SparkRunningJobApp extends StormApplication {
     @Override
     public StormTopology execute(Config config, StormEnvironment environment) {
-        //1. trigger init conf
-        SparkRunningJobAppConfig sparkRunningJobAppConfig = SparkRunningJobAppConfig.getInstance(config);
+        //1. trigger prepare conf
+        SparkRunningJobAppConfig sparkRunningJobAppConfig = SparkRunningJobAppConfig.newInstance(config);
 
-        //2. init topology
+        //2. prepare topology
         TopologyBuilder topologyBuilder = new TopologyBuilder();
         final String spoutName = SparkRunningJobAppConfig.JOB_FETCH_SPOUT_NAME;
         final String boltName = SparkRunningJobAppConfig.JOB_PARSE_BOLT_NAME;
-        int parallelism = sparkRunningJobAppConfig.getTopologyConfig().jobFetchSpoutParallism;
-        int tasks = sparkRunningJobAppConfig.getTopologyConfig().jobFetchSpoutTasksNum;
+        int parallelism = sparkRunningJobAppConfig.getJobExtractorConfig().jobFetchSpoutParallism;
+        int tasks = sparkRunningJobAppConfig.getJobExtractorConfig().jobFetchSpoutTasksNum;
         if (parallelism > tasks) {
             parallelism = tasks;
         }
@@ -50,8 +50,8 @@ public class SparkRunningJobApp extends StormApplication {
                 parallelism
         ).setNumTasks(tasks);
 
-        parallelism = sparkRunningJobAppConfig.getTopologyConfig().jobParseBoltParallism;
-        tasks = sparkRunningJobAppConfig.getTopologyConfig().jobParseBoltTasksNum;
+        parallelism = sparkRunningJobAppConfig.getJobExtractorConfig().jobParseBoltParallism;
+        tasks = sparkRunningJobAppConfig.getJobExtractorConfig().jobParseBoltTasksNum;
         if (parallelism > tasks) {
             parallelism = tasks;
         }

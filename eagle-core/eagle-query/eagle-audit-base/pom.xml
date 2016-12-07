@@ -24,13 +24,13 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-query-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>eagle-audit-base</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-audit-base</name>
+    <name>Eagle::Core::Query::AuditBase</name>
 
     <dependencies>
 

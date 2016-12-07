@@ -36,6 +36,7 @@ import org.apache.eagle.alert.engine.coordinator.StreamPartition;
 import org.apache.eagle.alert.engine.coordinator.StreamSortSpec;
 import org.apache.eagle.alert.engine.router.StreamRouter;
 import org.apache.eagle.alert.engine.router.StreamRouterBoltSpecListener;
+import org.apache.eagle.alert.engine.router.impl.StormOutputCollector;
 import org.apache.eagle.alert.engine.router.impl.StreamRouterBoltOutputCollector;
 import org.apache.eagle.alert.engine.router.impl.StreamRouterImpl;
 import org.apache.eagle.alert.engine.serialization.SerializationMetadataProvider;
@@ -69,7 +70,7 @@ public class StreamRouterBolt extends AbstractStreamBolt implements StreamRouter
     @Override
     public void internalPrepare(OutputCollector collector, IMetadataChangeNotifyService changeNotifyService, Config config, TopologyContext context) {
         streamContext = new StreamContextImpl(config, context.registerMetric("eagle.router", new MultiCountMetric(), 60), context);
-        routeCollector = new StreamRouterBoltOutputCollector(getBoltId(), collector, this.getOutputStreamIds(), streamContext, serializer);
+        routeCollector = new StreamRouterBoltOutputCollector(getBoltId(), new StormOutputCollector(collector, serializer), this.getOutputStreamIds(), streamContext);
         router.prepare(streamContext, routeCollector);
         changeNotifyService.registerListener(this);
         changeNotifyService.init(config, MetadataType.STREAM_ROUTER_BOLT);
@@ -78,10 +79,10 @@ public class StreamRouterBolt extends AbstractStreamBolt implements StreamRouter
     @Override
     public void execute(Tuple input) {
         try {
-            this.streamContext.counter().scope("execute_count").incr();
+            this.streamContext.counter().incr("execute_count");
             this.router.nextEvent(deserialize(input.getValueByField(AlertConstants.FIELD_0)).withAnchor(input));
         } catch (Exception ex) {
-            this.streamContext.counter().scope("fail_count").incr();
+            this.streamContext.counter().incr("fail_count");
             LOG.error(ex.getMessage(), ex);
             this.collector.fail(input);
         }
@@ -104,12 +105,7 @@ public class StreamRouterBolt extends AbstractStreamBolt implements StreamRouter
         sanityCheck(spec);
 
         // figure out added, removed, modified StreamSortSpec
-        Map<StreamPartition, StreamSortSpec> newSSS = new HashMap<>();
-        spec.getRouterSpecs().forEach(t -> {
-            if (t.getPartition().getSortSpec() != null) {
-                newSSS.put(t.getPartition(), t.getPartition().getSortSpec());
-            }
-        });
+        Map<StreamPartition, StreamSortSpec> newSSS = spec.makeSSS();
 
         Set<StreamPartition> newStreamIds = newSSS.keySet();
         Set<StreamPartition> cachedStreamIds = cachedSSS.keySet();
@@ -137,13 +133,7 @@ public class StreamRouterBolt extends AbstractStreamBolt implements StreamRouter
         cachedSSS = newSSS;
 
         // figure out added, removed, modified StreamRouterSpec
-        Map<StreamPartition, List<StreamRouterSpec>> newSRS = new HashMap<>();
-        spec.getRouterSpecs().forEach(t -> {
-            if (!newSRS.containsKey(t.getPartition())) {
-                newSRS.put(t.getPartition(), new ArrayList<StreamRouterSpec>());
-            }
-            newSRS.get(t.getPartition()).add(t);
-        });
+        Map<StreamPartition, List<StreamRouterSpec>> newSRS = spec.makeSRS();
 
         Set<StreamPartition> newStreamPartitions = newSRS.keySet();
         Set<StreamPartition> cachedStreamPartitions = cachedSRS.keySet();

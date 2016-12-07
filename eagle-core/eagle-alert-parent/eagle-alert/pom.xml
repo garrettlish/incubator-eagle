@@ -17,10 +17,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-alert-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>eagle-alert</artifactId>
+    <name>Eagle::Core::Alert::Core</name>
     <packaging>pom</packaging>
 
     <modules>

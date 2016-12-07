@@ -23,13 +23,13 @@
     <parent>
         <artifactId>eagle-jpm-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-jpm-mr-history</artifactId>
-    <name>eagle-jpm-mr-history</name>
+    <name>Eagle::App::JPM::MRHistoryJob</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>

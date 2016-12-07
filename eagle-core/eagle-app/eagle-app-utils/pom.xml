@@ -23,12 +23,13 @@
     <parent>
         <artifactId>eagle-app-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-app-utils</artifactId>
+    <name>Eagle::Core::App::Utils</name>
     <packaging>jar</packaging>
 
     <dependencies>

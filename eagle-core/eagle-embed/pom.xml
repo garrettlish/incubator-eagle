@@ -21,12 +21,13 @@
     <parent>
         <artifactId>eagle-core</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-embed-parent</artifactId>
+    <name>Eagle::Core::Embed::Parent</name>
     <packaging>pom</packaging>
 
     <modules>

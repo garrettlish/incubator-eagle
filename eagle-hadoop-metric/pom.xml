@@ -20,16 +20,31 @@
     <parent>
         <artifactId>eagle-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-hadoop-metric</artifactId>
+    <name>Eagle::App::HadoopMetric</name>
     <dependencies>
         <dependency>
             <groupId>org.apache.eagle</groupId>
             <artifactId>eagle-app-base</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

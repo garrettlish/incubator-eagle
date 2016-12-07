@@ -17,10 +17,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>alert-metadata-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>alert-metadata</artifactId>
+    <name>Eagle::Core::Alert::MetadataBase</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -43,6 +44,10 @@
             <version>${mongodb.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql-connector-java.version}</version>
@@ -62,6 +67,18 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

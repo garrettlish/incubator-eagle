@@ -19,6 +19,7 @@ package org.apache.eagle.metadata.store.jdbc;
 
 import com.google.inject.Singleton;
 import org.apache.eagle.alert.metadata.IMetadataDao;
+import org.apache.eagle.alert.metadata.MetadataUtils;
 import org.apache.eagle.alert.metadata.impl.JdbcMetadataDaoImpl;
 import org.apache.eagle.metadata.persistence.MetadataStore;
 import org.apache.eagle.metadata.service.ApplicationEntityService;

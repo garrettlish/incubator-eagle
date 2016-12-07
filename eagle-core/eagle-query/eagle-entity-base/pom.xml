@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-query-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>eagle-entity-base</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-entity-base</name>
+    <name>Eagle::Core::Query::EntityBase</name>
 
     <dependencies>
         <!-- put extcos dependency at the top for using asm 4.0 jar !-->

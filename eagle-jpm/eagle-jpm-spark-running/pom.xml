@@ -23,11 +23,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-jpm-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>eagle-jpm-spark-running</artifactId>
-    <name>eagle-jpm-spark-running</name>
+    <name>Eagle::App::JPM::SparkRunningJob</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>

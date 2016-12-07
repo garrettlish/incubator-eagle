@@ -21,15 +21,14 @@
     <parent>
         <artifactId>eagle-jpm-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eagle-jpm-entity</artifactId>
+    <name>Eagle::App::JPM::Entity</name>
     <packaging>jar</packaging>
-
-    <name>eagle-jpm-entity</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

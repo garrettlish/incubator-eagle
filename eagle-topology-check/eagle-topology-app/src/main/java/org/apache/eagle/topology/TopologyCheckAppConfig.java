@@ -68,7 +68,7 @@ public class TopologyCheckAppConfig implements Serializable {
     private void init(Config config) {
         this.config = config;
 
-        this.dataExtractorConfig.site = config.getString("dataExtractorConfig.site");
+        this.dataExtractorConfig.site = config.getString("siteId");
         this.dataExtractorConfig.fetchDataIntervalInSecs = config.getLong("dataExtractorConfig.fetchDataIntervalInSecs");
         this.dataExtractorConfig.parseThreadPoolSize = MAX_NUM_THREADS;
         if (config.hasPath("dataExtractorConfig.parseThreadPoolSize")) {
@@ -85,16 +85,17 @@ public class TopologyCheckAppConfig implements Serializable {
             //e.printStackTrace();
         }
 
-        if (config.hasPath("dataSourceConfig.hbase")) {
+        if (config.hasPath("dataSourceConfig.hbase") && config.getBoolean("dataSourceConfig.hbase.enabled")) {
             topologyTypes.add(TopologyConstants.TopologyType.HBASE);
             hBaseConfig = new HBaseConfig();
-            hBaseConfig.eagleKeytab = config.getString("dataSourceConfig.hbase.kerberos.eagle.keytab");
-            hBaseConfig.eaglePrincipal = config.getString("dataSourceConfig.hbase.kerberos.eagle.principal");
-            hBaseConfig.hbaseMasterPrincipal = config.getString("dataSourceConfig.hbase.kerberos.master.principal");
+
             hBaseConfig.zkQuorum = config.getString("dataSourceConfig.hbase.zkQuorum");
             hBaseConfig.zkRoot = config.getString("dataSourceConfig.hbase.zkZnodeParent");
             hBaseConfig.zkClientPort = getOptionalConfig("dataSourceConfig.hbase.zkPropertyClientPort", HBASE_ZOOKEEPER_CLIENT_PORT);
             hBaseConfig.zkRetryTimes = getOptionalConfig("dataSourceConfig.hbase.zkRetryTimes", "5");
+            hBaseConfig.eagleKeytab = getOptionalConfig("dataSourceConfig.hbase.kerberos.eagle.keytab", null);
+            hBaseConfig.eaglePrincipal = getOptionalConfig("dataSourceConfig.hbase.kerberos.eagle.principal", null);
+            hBaseConfig.hbaseMasterPrincipal = getOptionalConfig("dataSourceConfig.hbase.kerberos.master.principal", null);
         }
 
         if (config.hasPath("dataSourceConfig.mr")) {

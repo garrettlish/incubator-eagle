@@ -23,11 +23,11 @@
     <parent>
         <artifactId>eagle-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>eagle-server</artifactId>
-    <name>Eagle::Server</name>
+    <name>Eagle::Server::Main</name>
     <description>
         Apache Eagle Server
     </description>

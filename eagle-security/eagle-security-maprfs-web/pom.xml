@@ -22,11 +22,11 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-security-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>eagle-security-maprfs-web</artifactId>
-    <name>eagle-security-maprfs-web</name>
+    <name>Eagle::App::Security::MapRFSService</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>

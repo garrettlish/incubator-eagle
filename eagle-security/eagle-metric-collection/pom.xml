@@ -21,12 +21,12 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-security-parent</artifactId>
-        <version>0.5.0-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>eagle-metric-collection</artifactId>
     <packaging>jar</packaging>
-    <name>eagle-metric-collection</name>
+    <name>Eagle::App::Security::MetricCollection</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
