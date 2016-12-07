@@ -22,7 +22,7 @@
     <parent>
         <artifactId>eagle-core</artifactId>
         <groupId>org.apache.eagle</groupId>
-        <version>0.5.1-ebay</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
