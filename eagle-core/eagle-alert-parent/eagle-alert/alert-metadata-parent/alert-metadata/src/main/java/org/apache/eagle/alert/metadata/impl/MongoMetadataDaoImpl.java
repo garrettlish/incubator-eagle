@@ -43,6 +43,7 @@ import org.apache.eagle.alert.metadata.IMetadataDao;
 import org.apache.eagle.alert.metadata.MetadataUtils;
 import org.apache.eagle.alert.metadata.resource.Models;
 import org.apache.eagle.alert.metadata.resource.OpResult;
+
 import org.bson.BsonDocument;
 import org.bson.BsonInt32;
 import org.bson.BsonString;
@@ -64,6 +65,8 @@ public class MongoMetadataDaoImpl implements IMetadataDao {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final int DEFAULT_CAPPED_MAX_SIZE = 500 * 1024 * 1024;
     private static final int DEFAULT_CAPPED_MAX_DOCUMENTS = 20000;
+    private static final String MANGO_CAPPED_MAX_SIZE = "mongo.cappedMaxSize";
+    private static final String MANGO_CAPPED_MAX_DOCUMENTS = "mongo.cappedMaxDocuments";
 
     static {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -97,9 +100,9 @@ public class MongoMetadataDaoImpl implements IMetadataDao {
 
     @Inject
     public MongoMetadataDaoImpl(Config config) {
-        this.connection = config.getString("connection");
-        this.cappedMaxSize = config.hasPath("cappedMaxSize") ? config.getInt("cappedMaxSize") : DEFAULT_CAPPED_MAX_SIZE;
-        this.cappedMaxDocuments = config.hasPath("cappedMaxDocuments") ? config.getInt("cappedMaxDocuments") : DEFAULT_CAPPED_MAX_DOCUMENTS;
+        this.connection = config.getString(MetadataUtils.MONGO_CONNECTION_PATH);
+        this.cappedMaxSize = config.hasPath(MANGO_CAPPED_MAX_SIZE) ? config.getInt(MANGO_CAPPED_MAX_SIZE) : DEFAULT_CAPPED_MAX_SIZE;
+        this.cappedMaxDocuments = config.hasPath(MANGO_CAPPED_MAX_DOCUMENTS) ? config.getInt(MANGO_CAPPED_MAX_DOCUMENTS) : DEFAULT_CAPPED_MAX_DOCUMENTS;
         this.client = new MongoClient(new MongoClientURI(this.connection));
         init();
     }
@@ -372,12 +375,12 @@ public class MongoMetadataDaoImpl implements IMetadataDao {
     }
 
     @Override
-    public List<AlertPublishEvent> getAlertPublishEventByPolicyId(String policyId, int size) {
+    public List<AlertPublishEvent> getAlertPublishEventsByPolicyId(String policyId, int size) {
         List<AlertPublishEvent> events = list(alerts, AlertPublishEvent.class);
-        if (size < 0 || size > events.size()) {
-            size = events.size();
-        }
         List<AlertPublishEvent> result = events.stream().filter(alert -> alert.getPolicyId().equals(policyId)).collect(Collectors.toList());
+        if (size < 0 || size > result.size()) {
+            size = result.size();
+        }
         return events.subList(result.size() - size, result.size());
     }
 
@@ -497,6 +500,16 @@ public class MongoMetadataDaoImpl implements IMetadataDao {
         }
 
         return state;
+    }
+
+    @Override
+    public List<ScheduleState> listScheduleStates() {
+        throw new UnsupportedOperationException("listScheduleStates not support!");
+    }
+
+    @Override
+    public OpResult clearScheduleState(int maxCapacity) {
+        throw new UnsupportedOperationException("clearScheduleState not support!");
     }
 
     private ScheduleState addDetailForScheduleState(ScheduleState state, String version) {

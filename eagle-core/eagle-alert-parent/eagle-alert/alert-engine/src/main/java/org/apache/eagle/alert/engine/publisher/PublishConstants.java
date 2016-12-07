@@ -35,6 +35,11 @@ public class PublishConstants {
     public static final String BROKER_LIST = "kafka_broker";
     public static final String WRITE_MODE = "kafka_write_mode";
 
+    // local rotated file constants
+    public static final String FILE_NAME = "fileName";
+    public static final String ROTATE_EVERY_KB = "rotate_every_kb";
+    public static final String NUMBER_OF_FILES = "number_of_files";
+
     // slack specific constants
     public static final String TOKEN = "token";
     public static final String CHANNELS = "channels";
@@ -46,11 +51,14 @@ public class PublishConstants {
     public static final String ALERT_EMAIL_ALERTLIST_PROPERTY = "alertList";
     public static final String ALERT_EMAIL_ORIGIN_PROPERTY = "alertEmailOrigin";
 
-    public static final String ALERT_EMAIL_MESSAGE = "alertMessage";
+    public static final String ALERT_EMAIL_SUBJECT = "alertSubject";
+    public static final String ALERT_EMAIL_BODY = "alertBody";
     public static final String ALERT_EMAIL_STREAM_ID = "streamId";
-    public static final String ALERT_EMAIL_TIMESTAMP = "alertTime";
+    public static final String ALERT_EMAIL_TIME = "alertTime";
     public static final String ALERT_EMAIL_POLICY_ID = "policyId";
     public static final String ALERT_EMAIL_ALERT_ID = "alertId";
+    public static final String ALERT_EMAIL_ALERT_CATEGORY = "alertCategory";
+    public static final String ALERT_EMAIL_ALERT_SEVERITY = "alertSeverity";
     public static final String ALERT_EMAIL_ALERT_DATA = "alertData";
     public static final String ALERT_EMAIL_ALERT_DATA_DESC = "alertDataDesc";
     public static final String ALERT_EMAIL_CREATOR = "creator";

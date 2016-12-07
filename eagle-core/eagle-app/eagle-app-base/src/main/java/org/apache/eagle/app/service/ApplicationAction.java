@@ -26,11 +26,13 @@ import org.apache.eagle.alert.engine.scheme.JsonScheme;
 import org.apache.eagle.alert.engine.scheme.JsonStringStreamNameSelector;
 import org.apache.eagle.alert.metadata.IMetadataDao;
 import org.apache.eagle.alert.metric.MetricConfigs;
+import org.apache.eagle.alert.utils.AlertConstants;
 import org.apache.eagle.app.Application;
 import org.apache.eagle.app.environment.ExecutionRuntime;
 import org.apache.eagle.app.environment.ExecutionRuntimeManager;
-import org.apache.eagle.app.sink.KafkaStreamSinkConfig;
+import org.apache.eagle.app.messaging.KafkaStreamSinkConfig;
 import org.apache.eagle.metadata.model.ApplicationEntity;
+import org.apache.eagle.metadata.model.StreamSourceConfig;
 import org.apache.eagle.metadata.utils.StreamIdConversions;
 import org.apache.eagle.metadata.model.StreamDesc;
 import org.apache.eagle.metadata.model.StreamSinkConfig;
@@ -83,7 +85,17 @@ public class ApplicationAction implements Serializable {
         executionConfig.put("jarPath", metadata.getJarPath());
         executionConfig.put("mode", metadata.getMode().name());
         executionConfig.put(MetricConfigs.METRIC_PREFIX_CONF, APP_METRIC_PREFIX);
-        this.effectiveConfig = ConfigFactory.parseMap(executionConfig).withFallback(serverConfig).withFallback(ConfigFactory.parseMap(metadata.getContext()));
+
+        if (serverConfig.hasPath(AlertConstants.COORDINATOR)) {
+            this.effectiveConfig = ConfigFactory.parseMap(executionConfig)
+                    .withFallback(serverConfig)
+                    .withFallback(ConfigFactory.parseMap(metadata.getContext()))
+                    .withFallback(serverConfig.getConfig(AlertConstants.COORDINATOR));
+        } else {
+            this.effectiveConfig = ConfigFactory.parseMap(executionConfig)
+                    .withFallback(serverConfig)
+                    .withFallback(ConfigFactory.parseMap(metadata.getContext()));
+        }
         this.alertMetadataService = alertMetadataService;
     }
 
@@ -101,21 +113,32 @@ public class ApplicationAction implements Serializable {
             copied.setSiteId(metadata.getSite().getSiteId());
             copied.setStreamId(StreamIdConversions.formatSiteStreamId(metadata.getSite().getSiteId(), copied.getStreamId()));
             StreamSinkConfig streamSinkConfig = this.runtime.environment()
-                    .streamSink().getSinkConfig(StreamIdConversions.parseStreamTypeId(copied.getSiteId(), copied.getStreamId()), this.effectiveConfig);
+                    .stream().getSinkConfig(StreamIdConversions.parseStreamTypeId(copied.getSiteId(), copied.getStreamId()), this.effectiveConfig);
+
+            StreamSourceConfig streamSourceConfig = null;
+
+            try {
+                streamSourceConfig = this.runtime.environment()
+                    .stream().getSourceConfig(StreamIdConversions.parseStreamTypeId(copied.getSiteId(), copied.getStreamId()), this.effectiveConfig);
+            } catch (Throwable throwable) {
+                // Ignore source config if not set.
+            }
+
             StreamDesc streamDesc = new StreamDesc();
             streamDesc.setSchema(copied);
-            streamDesc.setSink(streamSinkConfig);
+            streamDesc.setSinkConfig(streamSinkConfig);
+            streamDesc.setSourceConfig(streamSourceConfig);
             streamDesc.setStreamId(copied.getStreamId());
+
             return streamDesc;
         })).collect(Collectors.toList());
         metadata.setStreams(streamDescToInstall);
 
-        // TODO: Decouple converting from StreamSink to Alert DataSource
         // iterate each stream descriptor and create alert datasource for each
         for (StreamDesc streamDesc : streamDescToInstall) {
             // only take care of Kafka sink
-            if (streamDesc.getSink() instanceof KafkaStreamSinkConfig) {
-                KafkaStreamSinkConfig kafkaCfg = (KafkaStreamSinkConfig) streamDesc.getSink();
+            if (streamDesc.getSinkConfig() instanceof KafkaStreamSinkConfig) {
+                KafkaStreamSinkConfig kafkaCfg = (KafkaStreamSinkConfig) streamDesc.getSinkConfig();
                 Kafka2TupleMetadata datasource = new Kafka2TupleMetadata();
                 datasource.setType("KAFKA");
                 datasource.setName(metadata.getAppId());

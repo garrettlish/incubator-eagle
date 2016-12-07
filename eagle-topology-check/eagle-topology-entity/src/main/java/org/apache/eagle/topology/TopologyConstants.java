@@ -26,6 +26,7 @@ public class TopologyConstants {
     public static final String HBASE_INSTANCE_SERVICE_NAME = "HbaseServiceInstance";
     public static final String MR_INSTANCE_SERVICE_NAME = "MRServiceInstance";
     public static final String JN_INSTANCE_SERVICE_NAME = "JNServiceInstance";
+    public static final String GENERIC_METRIC_SERVICE = "GenericMetricService";
 
     public static final int DEFAULT_READ_TIMEOUT = 30 * 60 * 1000; // in milliseconds
     public static final Pattern HTTP_HOST_MATCH_PATTERN = Pattern.compile("^https?://(.+?):-?(\\d+)/?");
@@ -60,6 +61,7 @@ public class TopologyConstants {
 
     // Status definitions for resource manager
     public static final String RESOURCE_MANAGER_ACTIVE_STATUS = "active";
+    public static final String RESOURCE_MANAGER_INACTIVE_STATUS = "inactive";
 
     // Status definitions for node manager
     public static final String NODE_MANAGER_RUNNING_STATUS = "running";

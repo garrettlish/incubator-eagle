@@ -16,6 +16,8 @@
  */
 package org.apache.eagle.alert.metadata.impl;
 
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import org.apache.eagle.alert.coordination.model.Kafka2TupleMetadata;
 import org.apache.eagle.alert.coordination.model.ScheduleState;
 import org.apache.eagle.alert.coordination.model.internal.PolicyAssignment;
@@ -26,8 +28,7 @@ import org.apache.eagle.alert.metadata.IMetadataDao;
 import org.apache.eagle.alert.metadata.MetadataUtils;
 import org.apache.eagle.alert.metadata.resource.Models;
 import org.apache.eagle.alert.metadata.resource.OpResult;
-import com.google.inject.Inject;
-import com.typesafe.config.Config;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,11 +219,11 @@ public class InMemMetadataDaoImpl implements IMetadataDao {
     }
 
     @Override
-    public List<AlertPublishEvent> getAlertPublishEventByPolicyId(String policyId, int size) {
-        if (size < 0 || size > alerts.size()) {
-            size = alerts.size();
-        }
+    public List<AlertPublishEvent> getAlertPublishEventsByPolicyId(String policyId, int size) {
         List<AlertPublishEvent> result = alerts.stream().filter(alert -> alert.getPolicyId().equals(policyId)).collect(Collectors.toList());
+        if (size < 0 || size > result.size()) {
+            size = result.size();
+        }
         return result.subList(result.size() - size, result.size());
     }
 
@@ -267,6 +268,16 @@ public class InMemMetadataDaoImpl implements IMetadataDao {
     }
 
     @Override
+    public List<ScheduleState> listScheduleStates() {
+        throw new UnsupportedOperationException("listScheduleStates not support!");
+    }
+
+    @Override
+    public OpResult clearScheduleState(int maxCapacity) {
+        throw new UnsupportedOperationException("clearScheduleState not support!");
+    }
+
+    @Override
     public List<PolicyAssignment> listAssignments() {
         return assignments;
     }
@@ -296,7 +307,7 @@ public class InMemMetadataDaoImpl implements IMetadataDao {
     }
 
     @Override
-    public OpResult clear() {
+    public synchronized OpResult clear() {
         LOG.info("clear models...");
         this.assignments.clear();
         this.clusters.clear();

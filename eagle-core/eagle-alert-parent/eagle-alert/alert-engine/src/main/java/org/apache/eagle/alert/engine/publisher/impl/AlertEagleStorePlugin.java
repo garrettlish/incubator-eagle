@@ -50,14 +50,8 @@ public class AlertEagleStorePlugin extends AbstractPublishPlugin {
         try {
             client.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public void update(String dedupIntervalMin, Map<String, Object> pluginProperties) {
-        deduplicator.setDedupIntervalMin(dedupIntervalMin);
     }
 
     @Override
@@ -75,7 +69,7 @@ public class AlertEagleStorePlugin extends AbstractPublishPlugin {
 
     @Override
     protected Logger getLogger() {
-        return null;
+        return LOG;
     }
 
 }

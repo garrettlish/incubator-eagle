@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class JdbcSchemaManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcSchemaManager.class);
@@ -84,7 +85,7 @@ public class JdbcSchemaManager {
             this.platform = PlatformFactory.createNewPlatformInstance("mysql");
 
             connection = MetadataUtils.getJdbcConnection(config);
-            String dbName = config.getString("database");
+            String dbName = config.getString(MetadataUtils.JDBC_DATABASE_PATH);
             this.database = platform.readModelFromDatabase(connection, dbName);
             LOG.info("Loaded " + database);
 
