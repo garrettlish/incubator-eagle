@@ -36,13 +36,13 @@
     </properties>
 
     <modules>
-        <!-- <module>eagle-data-process</module> -->
+        <module>eagle-data-process</module>
         <module>eagle-alert-parent</module>
-        <!-- <module>eagle-query</module> -->
-        <!-- <module>eagle-embed</module> -->
-        <!-- <module>eagle-metric</module> -->
-        <!-- <module>eagle-metadata</module> -->
+        <module>eagle-query</module>
+        <module>eagle-embed</module>
+        <module>eagle-metric</module>
+        <module>eagle-metadata</module>
         <module>eagle-common</module>
-        <!-- <module>eagle-app</module> -->
+        <module>eagle-app</module>
     </modules>
 </project>
