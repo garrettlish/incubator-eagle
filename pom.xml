@@ -1262,7 +1262,7 @@
                     <configuration>
                         <releaseVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}-ebay</releaseVersion>
                         <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${nextIncrementalVersion}-SNAPSHOT</developmentVersion>
-                        <tagNameFormat>@{project.version}-ebay</tagNameFormat>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                     </configuration>
                 </plugin>
