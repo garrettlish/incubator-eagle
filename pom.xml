@@ -46,9 +46,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:apache/incubator-eagle.git</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-eagle.git</developerConnection>
-        <url>scm:git:git@github.com:apache/incubator-eagle.git</url>
+        <url>https://github.corp.ebay.com/Sherlock/incubator-eagle-sherlock</url>
+        <connection>scm:git:ssh://git@github.corp.ebay.com/Sherlock/incubator-eagle-sherlock.git</connection>
+        <developerConnection>scm:git:ssh://git@github.corp.ebay.com/Sherlock/incubator-eagle-sherlock.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>
