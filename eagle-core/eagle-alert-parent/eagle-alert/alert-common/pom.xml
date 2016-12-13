@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-alert</artifactId>
-        <version>0.5.3-SNAPSHOT</version>
+        <version>0.5.3-ebay</version>
         <relativePath>..</relativePath>
     </parent>
 
