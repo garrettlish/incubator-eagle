@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>alert-metadata-parent</artifactId>
-        <version>0.5.3-ebay</version>
+        <version>0.5.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>alert-metadata-service</artifactId>
