@@ -1,6 +1,8 @@
 {
   "env": {
-    "site": "sandbox"
+    "site": "sandbox",
+    "metric_prefix": "hadoop.",
+    "log_file": "/tmp/hadoop-jmx-collector.log"
   },
   "input": [
     {
@@ -23,7 +25,7 @@
     }
   ],
   "filter": {
-    "beam_group_filter": ["hadoop","java.lang"],
+    "bean_group_filter": ["hadoop","java.lang"],
     "metric_name_filter": [
       "hadoop.memory.heapmemoryusage.used",
       "hadoop.memory.nonheapmemoryusage.used",

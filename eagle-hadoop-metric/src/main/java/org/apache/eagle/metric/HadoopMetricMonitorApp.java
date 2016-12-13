@@ -19,9 +19,10 @@ package org.apache.eagle.metric;
 import backtype.storm.generated.StormTopology;
 import com.typesafe.config.Config;
 import org.apache.eagle.app.StormApplication;
-import org.apache.eagle.app.environment.builder.CEPFunction;
-import org.apache.eagle.app.environment.impl.StormEnvironment;
 import org.apache.eagle.app.environment.builder.MetricDefinition;
+import org.apache.eagle.app.environment.impl.StormEnvironment;
+
+import java.util.Calendar;
 
 public class HadoopMetricMonitorApp extends StormApplication {
     @Override
@@ -29,9 +30,11 @@ public class HadoopMetricMonitorApp extends StormApplication {
         return environment.newApp(config)
             .fromStream("HADOOP_JMX_METRIC_STREAM")
             .saveAsMetric(MetricDefinition
+                .metricType("HADOOP_JMX_METRICS")
                 .namedByField("metric")
                 .eventTimeByField("timestamp")
                 .dimensionFields("host","component","site")
+                .granularity(Calendar.MINUTE)
                 .valueField("value"))
             .toTopology();
     }
