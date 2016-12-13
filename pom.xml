@@ -24,7 +24,7 @@
     </parent>
     <groupId>org.apache.eagle</groupId>
     <artifactId>eagle-parent</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.2-ebay</version>
     <packaging>pom</packaging>
     <name>Eagle::Parent</name>
     <url>https://eagle.incubator.apache.org</url>
@@ -48,7 +48,7 @@
         <url>https://github.corp.ebay.com/Sherlock/incubator-eagle-sherlock</url>
         <connection>scm:git:ssh://git@github.corp.ebay.com/Sherlock/incubator-eagle-sherlock.git</connection>
         <developerConnection>scm:git:ssh://git@github.corp.ebay.com/Sherlock/incubator-eagle-sherlock.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>0.5.2-ebay</tag>
     </scm>
     <distributionManagement>
         <repository>
