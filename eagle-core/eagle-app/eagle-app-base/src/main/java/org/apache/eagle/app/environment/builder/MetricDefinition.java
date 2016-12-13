@@ -19,6 +19,7 @@ package org.apache.eagle.app.environment.builder;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,13 @@ public class MetricDefinition implements Serializable {
      * Metric dimension field name.
      */
     private List<String> dimensionFields;
+
+    /**
+     * Metric granularity.
+     */
+    private int granularity = Calendar.MINUTE;
+
+    private String metricType = "DEFAULT";
 
     /**
      * Metric value field name.
@@ -76,6 +84,22 @@ public class MetricDefinition implements Serializable {
         this.timestampSelector = timestampSelector;
     }
 
+    public int getGranularity() {
+        return granularity;
+    }
+
+    public void setGranularity(int granularity) {
+        this.granularity = granularity;
+    }
+
+    public String getMetricType() {
+        return metricType;
+    }
+
+    public void setMetricType(String metricType) {
+        this.metricType = metricType;
+    }
+
 
     @FunctionalInterface
     public interface NameSelector extends Serializable {
@@ -87,15 +111,27 @@ public class MetricDefinition implements Serializable {
         Long getTimestamp(Map event);
     }
 
-    public static MetricDefinition namedBy(NameSelector nameSelector) {
-        MetricDefinition metricDefinition = new MetricDefinition();
-        metricDefinition.setNameSelector(nameSelector);
-        return metricDefinition;
+    public MetricDefinition namedBy(NameSelector nameSelector) {
+        this.setNameSelector(nameSelector);
+        return this;
     }
 
-    public static MetricDefinition namedByField(String nameField) {
+    /**
+     * @see java.util.Calendar
+     */
+    public MetricDefinition granularity(int granularity) {
+        this.setGranularity(granularity);
+        return this;
+    }
+
+    public MetricDefinition namedByField(String nameField) {
+        this.setNameSelector(new FieldNameSelector(nameField));
+        return this;
+    }
+
+    public static MetricDefinition metricType(String metricType) {
         MetricDefinition metricDefinition = new MetricDefinition();
-        metricDefinition.setNameSelector(new FieldNameSelector(nameField));
+        metricDefinition.setMetricType(metricType);
         return metricDefinition;
     }
 

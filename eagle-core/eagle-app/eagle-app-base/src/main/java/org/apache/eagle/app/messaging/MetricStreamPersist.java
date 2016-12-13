@@ -26,6 +26,7 @@ import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import org.apache.eagle.app.environment.builder.MetricDefinition;
 import org.apache.eagle.app.utils.StreamConvertHelper;
+import org.apache.eagle.common.DateTimeUtil;
 import org.apache.eagle.log.entity.GenericMetricEntity;
 import org.apache.eagle.log.entity.GenericServiceAPIResponseEntity;
 import org.apache.eagle.service.client.IEagleServiceClient;
@@ -42,6 +43,7 @@ import java.util.Map;
 
 public class MetricStreamPersist extends BaseRichBolt  {
     private static final Logger LOG = LoggerFactory.getLogger(MetricStreamPersist.class);
+    public static final String METRIC_NAME_FIELD = "metricName";
 
     private final Config config;
     private final MetricMapper mapper;
@@ -81,6 +83,7 @@ public class MetricStreamPersist extends BaseRichBolt  {
                     LOG.error("Service side error: {}", response.getException());
                     collector.reportError(new IllegalStateException(response.getException()));
                 } else {
+                    collector.emit(Collections.singletonList(metricEntity.getPrefix()));
                     collector.ack(input);
                 }
             } else {
@@ -95,7 +98,7 @@ public class MetricStreamPersist extends BaseRichBolt  {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("f1"));
+        declarer.declare(new Fields(METRIC_NAME_FIELD));
     }
 
     @Override
@@ -143,7 +146,7 @@ public class MetricStreamPersist extends BaseRichBolt  {
 
             GenericMetricEntity entity = new GenericMetricEntity();
             entity.setPrefix(metricName);
-            entity.setTimestamp(timestamp);
+            entity.setTimestamp(DateTimeUtil.roundDown(metricDefinition.getGranularity(), timestamp));
             entity.setTags(tags);
             entity.setValue(values);
             return entity;
