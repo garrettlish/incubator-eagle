@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.eagle</groupId>
         <artifactId>eagle-parent</artifactId>
-        <version>0.5.7-ebay</version>
+        <version>0.5.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
