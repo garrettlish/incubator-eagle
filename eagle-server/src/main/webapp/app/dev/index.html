@@ -116,6 +116,7 @@
 									<li><a>How to install application</a></li>
 									<li><a>How to manage application</a></li>
 									<li><a>How to develop application</a></li>
+									<li><a ui-sref="metricPreview()">Preview eagle metric</a></li>
 								</ul>
 							</li>
 						</ul>
@@ -129,7 +130,7 @@
 				<!-- side bar: style can be found in sidebar.less -->
 				<section class="sidebar">
 					<ul class="sidebar-menu">
-						<li ng-repeat="portal in Portal.list track by $index" ng-class="{treeview: portal.list}" ng-if="portal.showFunc ? portal.showFunc() : true">
+						<li ng-repeat="portal in Portal.list track by $index" ng-class="{treeview: portal.list , active: getPageNavClass(portal.list)}" ng-if="portal.showFunc ? portal.showFunc() : true">
 							<a ng-href="{{portal.path}}">
 								<i class="fa fa-{{portal.icon || 'circle-o'}}"></i>
 								<span>{{portal.name}}</span>
@@ -161,13 +162,13 @@
 
 
 					<ol class="breadcrumb">
-						<li ng-repeat="navPath in PageConfig.navPath">
+						<li ng-repeat="navPath in PageConfig.getNavPath() track by $index">
 							<span ng-if="!navPath.path">
-								<span class="fa fa-home" ng-if="$first"></span>
+								<span class="fa fa-{{navPath.icon || 'home'}}" ng-if="$first"></span>
 								{{navPath.title || navPath.path}}
 							</span>
 							<a ng-if="navPath.path" ng-href="#{{navPath.path}}">
-								<span class="fa fa-home" ng-if="$first"></span>
+								<span class="fa fa-{{navPath.icon || 'home'}}" ng-if="$first"></span>
 								{{navPath.title || navPath.path}}
 							</a>
 						</li>
@@ -265,6 +266,7 @@
 
 		<!-- Service -->
 		<script src="public/js/services/main.js" type="text/javascript" charset="utf-8"></script>
+		<script src="public/js/services/serverSrv.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/js/services/timeSrv.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/js/services/pageSrv.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/js/services/widgetSrv.js" type="text/javascript" charset="utf-8"></script>
@@ -292,6 +294,7 @@
 		<script src="public/js/ctrls/alertEditCtrl.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/js/ctrls/integrationCtrl.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/js/ctrls/siteCtrl.js" type="text/javascript" charset="utf-8"></script>
+		<script src="public/js/ctrls/metricCtrl.js" type="text/javascript" charset="utf-8"></script>
 		<!-- endref -->
 	</body>
 </html>

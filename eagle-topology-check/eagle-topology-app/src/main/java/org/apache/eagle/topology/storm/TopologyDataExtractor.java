@@ -23,10 +23,13 @@ import org.apache.eagle.topology.TopologyCheckAppConfig;
 import org.apache.eagle.topology.extractor.TopologyCrawler;
 import org.apache.eagle.topology.extractor.TopologyExtractorFactory;
 import org.apache.eagle.topology.resolver.TopologyRackResolver;
+import org.apache.eagle.topology.resolver.impl.ClusterNodeAPITopologyRackResolver;
 import org.apache.eagle.topology.resolver.impl.DefaultTopologyRackResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -58,13 +61,8 @@ public class TopologyDataExtractor {
         futures.forEach(future -> {
             try {
                 future.get(fetchTimeoutSecs, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                LOGGER.info("Caught an overtime exception with message" + e.getMessage());
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                LOGGER.error("Caught an overtime exception with message" + e.getMessage(), e);
             }
         });
     }
@@ -75,17 +73,16 @@ public class TopologyDataExtractor {
         if (config.dataExtractorConfig.resolverCls != null) {
             try {
                 rackResolver = config.dataExtractorConfig.resolverCls.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                rackResolver.prepare(config);
+            } catch (InstantiationException | IllegalAccessException e) {
+                LOGGER.error(e.getMessage(), e);
             }
         }
         for (TopologyType type : config.topologyTypes) {
             try {
                 extractors.add(TopologyExtractorFactory.create(type, config, rackResolver, collector));
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return extractors;

@@ -21,7 +21,7 @@ package org.apache.eagle.hadoop.queue.model.scheduler;
 import org.apache.eagle.hadoop.queue.common.HadoopClusterConstants;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
 
@@ -54,7 +54,9 @@ public class RunningQueueAPIEntity extends TaggedLogAPIEntity {
     @Column("j")
     private String scheduler;
     @Column("k")
-    private List<UserWrapper> users;
+    private UserWrappers users;
+    @Column("l")
+    private double userLimitFactor;
 
     public String getScheduler() {
         return scheduler;
@@ -147,12 +149,21 @@ public class RunningQueueAPIEntity extends TaggedLogAPIEntity {
         valueChanged("numPendingApplications");
     }
 
-    public List<UserWrapper> getUsers() {
+    public UserWrappers getUsers() {
         return users;
     }
 
-    public void setUsers(List<UserWrapper> users) {
+    public void setUsers(UserWrappers users) {
         this.users = users;
-        valueChanged("numPendingApplications");
+        valueChanged("users");
+    }
+
+    public double getUserLimitFactor() {
+        return userLimitFactor;
+    }
+
+    public void setUserLimitFactor(double userLimitFactor) {
+        this.userLimitFactor = userLimitFactor;
+        valueChanged("userLimitFactor");
     }
 }

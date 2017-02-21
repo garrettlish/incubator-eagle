@@ -20,13 +20,13 @@ package org.apache.eagle.jpm.mr.historyentity;
 
 import org.apache.eagle.jpm.util.Constants;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eaglejpa_anomaly")
 @ColumnFamily("f")
 @Prefix("taskfailurecount")
-@Service(Constants.JPA_TASK_FAILURE_COUNT_SERVICE_NAME)
+@Service(Constants.MR_TASK_FAILURE_COUNT_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 public class TaskFailureCountAPIEntity extends JobBaseAPIEntity {

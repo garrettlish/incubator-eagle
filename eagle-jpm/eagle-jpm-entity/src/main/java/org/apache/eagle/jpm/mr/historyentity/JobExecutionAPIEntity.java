@@ -21,15 +21,13 @@ package org.apache.eagle.jpm.mr.historyentity;
 import org.apache.eagle.jpm.util.Constants;
 import org.apache.eagle.jpm.util.jobcounter.JobCounters;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import java.util.Map;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eaglejpa")
 @ColumnFamily("f")
 @Prefix("jexec")
-@Service(Constants.JPA_JOB_EXECUTION_SERVICE_NAME)
+@Service(Constants.MR_JOB_EXECUTION_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 @Indexes({
@@ -94,7 +92,7 @@ public class JobExecutionAPIEntity extends JobBaseAPIEntity {
     @Column("ad")
     private String trackingUrl;
     @Column("ae")
-    private Map<String, Map<String, String>> failedTasks;
+    private String diagnostics;
 
     public String getTrackingUrl() {
         return trackingUrl;
@@ -348,12 +346,12 @@ public class JobExecutionAPIEntity extends JobBaseAPIEntity {
         valueChanged("failedReduceAttempts");
     }
 
-    public Map<String, Map<String, String>> getFailedTasks() {
-        return failedTasks;
+    public String getDiagnostics() {
+        return diagnostics;
     }
 
-    public void setFailedTasks(Map<String, Map<String, String>> failedTasks) {
-        this.failedTasks = failedTasks;
-        valueChanged("failedTasks");
+    public void setDiagnostics(String diagnostics) {
+        this.diagnostics = diagnostics;
+        valueChanged("diagnostics");
     }
 }

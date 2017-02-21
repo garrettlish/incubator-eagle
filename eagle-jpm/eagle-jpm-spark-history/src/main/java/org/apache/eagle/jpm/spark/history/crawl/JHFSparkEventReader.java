@@ -690,7 +690,7 @@ public class JHFSparkEventReader {
     private void flushEntities(Collection entities, boolean forceFlush) {
         this.createEntities.addAll(entities);
 
-        if (forceFlush || this.createEntities.size() >= FLUSH_LIMIT) {
+        if (forceFlush || this.createEntities.size() >= config.eagleInfo.flushLimit) {
             try {
                 this.doFlush(this.createEntities);
                 this.createEntities.clear();
@@ -708,7 +708,7 @@ public class JHFSparkEventReader {
             config.eagleInfo.username,
             config.eagleInfo.password);
         int timeout = config.eagleInfo.timeout;
-        client.getJerseyClient().setReadTimeout(timeout * 1000);
+        client.setReadTimeout(timeout * 1000);
 
         return client;
     }

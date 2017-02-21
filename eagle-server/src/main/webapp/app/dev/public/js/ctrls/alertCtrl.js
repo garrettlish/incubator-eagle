@@ -26,6 +26,7 @@
 	// ======================================================================================
 	eagleControllers.controller('alertListCtrl', function ($scope, $wrapState, PageConfig, CompatibleEntity, Time) {
 		PageConfig.title = "Alerts";
+		$scope.site = $wrapState.param.siteId;
 
 		$scope.alertList = [];
 		$scope.loading = false;
@@ -34,6 +35,7 @@
 			$scope.loading = true;
 			var list = CompatibleEntity.query("LIST", {
 				query: "AlertService",
+				condition: {siteId: $scope.site},
 				startTime: new Time('startTime'),
 				endTime: new Time('endTime')
 			});
@@ -45,14 +47,6 @@
 		loadAlerts();
 
 		Time.onReload(loadAlerts, $scope);
-
-		// ================================================================
-		// =                             Sync                             =
-		// ================================================================
-		/* var refreshInterval = $interval($scope.alertList._refresh, 1000 * 10);
-		$scope.$on('$destroy', function() {
-			$interval.cancel(refreshInterval);
-		}); */
 	});
 
 	eagleControllers.controller('alertDetailCtrl', function ($sce, $scope, $wrapState, PageConfig, CompatibleEntity) {
@@ -87,7 +81,9 @@
 		PageConfig.title = "Streams";
 
 		$scope.streamList = [];
-		Entity.queryMetadata("streams")._then(function (res) {
+		$scope.site = $wrapState.param.siteId;
+
+		Entity.queryMetadata("streams", { siteId: $scope.site })._then(function (res) {
 			$scope.streamList = $.map(res.data, function (stream) {
 				var application = Application.findProvider(stream.dataSource);
 				return $.extend({application: application}, stream);
@@ -116,12 +112,17 @@
 	// ======================================================================================
 	eagleControllers.controller('policyListCtrl', function ($scope, $wrapState, PageConfig, Entity, Policy) {
 		PageConfig.title = "Policies";
+		$scope.loading = false;
 
 		$scope.policyList = [];
+		$scope.site = $wrapState.param.siteId;
 
 		function updateList() {
-			var list = Entity.queryMetadata("policies");
+			var list = Entity.queryMetadata("policies", { siteId: $scope.site });
+			$scope.loading = true;
+
 			list._then(function () {
+				$scope.loading = false;
 				$scope.policyList = list;
 			});
 		}

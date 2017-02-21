@@ -23,7 +23,6 @@
 <application>
     <type>HDFS_AUDIT_LOG_MONITOR_APP</type>
     <name>Hdfs Audit Log Monitor</name>
-    <version>0.5.0-incubating</version>
     <configuration>
         <!-- topology related configurations -->
         <property>
@@ -63,6 +62,12 @@
             <description>number of sink tasks</description>
         </property>
         <property>
+            <name>topology.numOfTrafficMonitorTasks</name>
+            <displayName>Topology Traffic Monitor Tasks</displayName>
+            <value>2</value>
+            <description>number of traffic monitor tasks</description>
+        </property>
+        <property>
             <name>topology.message.timeout.secs</name>
             <displayName>topology message timeout (secs)</displayName>
             <description>default timeout is 60s</description>
@@ -90,6 +95,13 @@
             <description>scheme class</description>
             <required>true</required>
         </property>
+        <property>
+            <name>dataSourceConfig.timeZone</name>
+            <displayName>Log Time Zone</displayName>
+            <description>time zone of hdfs audit log </description>
+            <value>GMT</value>
+            <required>true</required>
+        </property>
 
         <!-- data enrich configurations -->
         <property>
@@ -103,7 +115,7 @@
         <property>
             <name>dataSinkConfig.topic</name>
             <displayName>Kafka Topic for Parsed Data Sink</displayName>
-            <value>hdfs_audit_log_enriched</value>
+            <value>hdfs_audit_event</value>
             <description>topic for kafka data sink</description>
         </property>
         <property>
@@ -149,6 +161,25 @@
             <displayName>Kafka Producer RequestRequiredAcks</displayName>
             <value>0</value>
             <description>value controls when a produce request is considered completed</description>
+        </property>
+        <property>
+            <name>dataSinkConfig.trafficMonitorEnabled</name>
+            <displayName>Log Traffic Monitor Enabled</displayName>
+            <value>false</value>
+            <description>enable the log throughput calculation</description>
+            <required>true</required>
+        </property>
+        <property>
+            <name>dataSinkConfig.metricWindowSize</name>
+            <displayName>Window Size for Traffic Counting</displayName>
+            <value>10</value>
+            <description>window size to calculate the throughput</description>
+        </property>
+        <property>
+            <name>dataSinkConfig.metricSinkBatchSize</name>
+            <displayName>Batch Size for Flushing Traffic Metrics</displayName>
+            <value>10</value>
+            <description>batch size of flushing metrics</description>
         </property>
 
         <!-- web app related configurations -->

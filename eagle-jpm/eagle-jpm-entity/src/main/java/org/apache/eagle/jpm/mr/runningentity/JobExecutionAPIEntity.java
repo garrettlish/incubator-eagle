@@ -23,13 +23,13 @@ import org.apache.eagle.jpm.util.jobcounter.JobCounters;
 import org.apache.eagle.jpm.util.resourcefetch.model.AppInfo;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eagleMRRunningJobs")
 @ColumnFamily("f")
 @Prefix("jobs")
-@Service(Constants.JPA_RUNNING_JOB_EXECUTION_SERVICE_NAME)
+@Service(Constants.MR_RUNNING_JOB_EXECUTION_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 @Indexes({

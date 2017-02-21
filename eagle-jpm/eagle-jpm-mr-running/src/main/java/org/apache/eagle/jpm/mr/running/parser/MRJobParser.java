@@ -19,6 +19,8 @@
 package org.apache.eagle.jpm.mr.running.parser;
 
 import com.typesafe.config.Config;
+import org.apache.eagle.jpm.analyzer.meta.model.AnalyzerEntity;
+import org.apache.eagle.jpm.analyzer.mr.MRJobPerformanceAnalyzer;
 import org.apache.eagle.jpm.mr.running.MRRunningJobConfig;
 import org.apache.eagle.jpm.mr.running.recover.MRRunningJobManager;
 import org.apache.eagle.jpm.mr.runningentity.JobConfig;
@@ -35,8 +37,8 @@ import org.apache.eagle.jpm.util.resourcefetch.connection.URLConnectionUtils;
 import org.apache.eagle.jpm.util.resourcefetch.model.*;
 import org.apache.eagle.jpm.util.resourcefetch.model.JobCounters;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -75,7 +77,6 @@ public class MRJobParser implements Runnable {
     private Map<String, String> commonTags = new HashMap<>();
     private MRRunningJobManager runningJobManager;
     private ParserStatus parserStatus;
-    private ResourceFetcher rmResourceFetcher;
     private Set<String> finishedTaskIds;
     private List<String> configKeys;
     private static final int TOP_BOTTOM_TASKS_BY_ELAPSED_TIME = 10;
@@ -90,7 +91,7 @@ public class MRJobParser implements Runnable {
     public MRJobParser(MRRunningJobConfig.EndpointConfig endpointConfig,
                        MRRunningJobConfig.EagleServiceConfig eagleServiceConfig,
                        AppInfo app, Map<String, JobExecutionAPIEntity> mrJobMap,
-                       MRRunningJobManager runningJobManager, ResourceFetcher rmResourceFetcher,
+                       MRRunningJobManager runningJobManager,
                        List<String> configKeys,
                        Config config) {
         this.app = app;
@@ -108,7 +109,6 @@ public class MRJobParser implements Runnable {
         this.commonTags.put(MRJobTagName.JOB_QUEUE.toString(), app.getQueue());
         this.runningJobManager = runningJobManager;
         this.parserStatus = ParserStatus.FINISHED;
-        this.rmResourceFetcher = rmResourceFetcher;
         this.finishedTaskIds = new HashSet<>();
         this.configKeys = configKeys;
         this.config = config;
@@ -130,6 +130,8 @@ public class MRJobParser implements Runnable {
         JobExecutionAPIEntity jobExecutionAPIEntity = mrJobEntityMap.get(mrJobId);
         jobExecutionAPIEntity.setInternalState(Constants.AppState.FINISHED.toString());
         jobExecutionAPIEntity.setCurrentState(Constants.AppState.RUNNING.toString());
+        // set an estimated job finished time because it's hard the get the specific one
+        jobExecutionAPIEntity.setEndTime(System.currentTimeMillis());
         mrJobConfigs.remove(mrJobId);
         if (mrJobConfigs.size() == 0) {
             this.parserStatus = ParserStatus.APP_FINISHED;
@@ -142,10 +144,9 @@ public class MRJobParser implements Runnable {
             if (fetchMRJobs()) {
                 break;
             } else if (i >= MAX_RETRY_TIMES - 1) {
-                //check whether the app has finished. if we test that we can connect rm, then we consider the jobs have finished
-                //if we get here either because of cannot connect rm or the jobs have finished
-                rmResourceFetcher.getResource(Constants.ResourceType.RUNNING_MR_JOB);
-                mrJobEntityMap.keySet().forEach(this::finishMRJob);
+                if (app.getState().equals(Constants.AppState.FINISHED.toString())) {
+                    mrJobEntityMap.keySet().forEach(this::finishMRJob);
+                }
                 return;
             }
         }
@@ -166,9 +167,6 @@ public class MRJobParser implements Runnable {
                     }
                 }
                 if (i >= MAX_RETRY_TIMES) {
-                    //may caused by rm unreachable
-                    rmResourceFetcher.getResource(Constants.ResourceType.RUNNING_MR_JOB);
-                    finishMRJob(jobId);
                     break;
                 }
             }
@@ -568,13 +566,17 @@ public class MRJobParser implements Runnable {
                 LOG.warn("exception found when process application {}, {}", app.getId(), e);
             } finally {
                 for (String jobId : mrJobEntityMap.keySet()) {
-                    mrJobEntityCreationHandler.add(mrJobEntityMap.get(jobId));
+                    JobExecutionAPIEntity entity = mrJobEntityMap.get(jobId);
+                    if (entity.getTags().containsKey(MRJobTagName.JOB_TYPE.toString())) {
+                        mrJobEntityCreationHandler.add(entity);
+                    }
                 }
                 if (mrJobEntityCreationHandler.flush()) { //force flush
                     //we must flush entities before delete from zk in case of missing finish state of jobs
                     //delete from zk if needed
                     mrJobEntityMap.keySet()
                         .stream()
+                        .filter(jobId -> mrJobEntityMap.get(jobId).getInternalState() != null)
                         .filter(
                             jobId -> mrJobEntityMap.get(jobId).getInternalState().equals(Constants.AppState.FINISHED.toString())
                                 || mrJobEntityMap.get(jobId).getInternalState().equals(Constants.AppState.FAILED.toString()))
@@ -588,5 +590,22 @@ public class MRJobParser implements Runnable {
                 this.parserStatus = ParserStatus.FINISHED;
             }
         }
+    }
+
+    private AnalyzerEntity convertToAnalysisEntity(JobExecutionAPIEntity jobExecutionAPIEntity) {
+        AnalyzerEntity mrJobAnalysisEntity = new AnalyzerEntity();
+        Map<String, String> tags = jobExecutionAPIEntity.getTags();
+        mrJobAnalysisEntity.setJobDefId(tags.get(MRJobTagName.JOD_DEF_ID.toString()));
+        mrJobAnalysisEntity.setJobId(tags.get(MRJobTagName.JOB_ID.toString()));
+        mrJobAnalysisEntity.setSiteId(tags.get(MRJobTagName.SITE.toString()));
+        mrJobAnalysisEntity.setUserId(tags.get(MRJobTagName.USER.toString()));
+
+        mrJobAnalysisEntity.setStartTime(jobExecutionAPIEntity.getStartTime());
+        mrJobAnalysisEntity.setEndTime(jobExecutionAPIEntity.getEndTime());
+        mrJobAnalysisEntity.setDurationTime(jobExecutionAPIEntity.getDurationTime());
+        mrJobAnalysisEntity.setCurrentState(jobExecutionAPIEntity.getInternalState());
+        mrJobAnalysisEntity.setJobConfig(new HashMap<>(jobExecutionAPIEntity.getJobConfig()));
+        mrJobAnalysisEntity.setProgress(this.app.getProgress());
+        return mrJobAnalysisEntity;
     }
 }

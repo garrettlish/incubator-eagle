@@ -21,8 +21,8 @@
  */
 package org.apache.eagle.hadoop.queue.model.applications;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * App model for Yarn Resource http://[rm http address:port]/ws/v1/cluster/apps.
@@ -51,6 +51,9 @@ public class App {
     private int allocatedMB;
     private int allocatedVCores;
     private int runningContainers;
+    // for HDP 2.7
+    private double queueUsagePercentage;
+    private double clusterUsagePercentage;
 
     public String getId() {
         return id;
@@ -218,5 +221,21 @@ public class App {
 
     public void setRunningContainers(int runningContainers) {
         this.runningContainers = runningContainers;
+    }
+
+    public double getQueueUsagePercentage() {
+        return queueUsagePercentage;
+    }
+
+    public void setQueueUsagePercentage(double queueUsagePercentage) {
+        this.queueUsagePercentage = queueUsagePercentage;
+    }
+
+    public double getClusterUsagePercentage() {
+        return clusterUsagePercentage;
+    }
+
+    public void setClusterUsagePercentage(double clusterUsagePercentage) {
+        this.clusterUsagePercentage = clusterUsagePercentage;
     }
 }

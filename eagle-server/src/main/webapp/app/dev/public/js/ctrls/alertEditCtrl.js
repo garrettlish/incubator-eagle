@@ -76,13 +76,13 @@
 			partitionSpec: [],
 			parallelismHint: 5
 		}, $scope.policy);
+		$scope.policy.siteId = $scope.policy.siteId || $wrapState.param.siteId;
 		console.log("[Policy]", $scope.policy);
 
-		var cacheSearchType;
+		var cacheSiteId;
 		var cacheSearchSourceKey;
 		var searchApplications;
 
-		$scope.searchType = "app";
 		$scope.searchSourceKey = "";
 		$scope.applications = {};
 		$scope.newPolicy = !$scope.policy.name;
@@ -105,25 +105,32 @@
 		// =                        Input Stream                        =
 		// ==============================================================
 		$scope.getSearchApplication = function() {
-			if(cacheSearchSourceKey !== $scope.searchSourceKey.toUpperCase() || cacheSearchType !== $scope.searchType) {
-				var match = false;
-				cacheSearchSourceKey = $scope.searchSourceKey.toUpperCase();
-				cacheSearchType = $scope.searchType;
+			var siteId = $scope.policy.siteId;
 
-				searchApplications = {};
-				$.each($scope.applications, function (appName, streams) {
-					$.each(streams, function (i, stream) {
-						var groupName = cacheSearchType === "app" ? stream.dataSource : stream.siteId;
-						if(
-							groupName.toUpperCase().indexOf(cacheSearchSourceKey) >= 0 ||
-							stream.streamId.toUpperCase().indexOf(cacheSearchSourceKey) >= 0
-						) {
-							match = true;
-							var group = searchApplications[groupName] = searchApplications[groupName] || [];
-							group.push(stream);
-						}
+			if(cacheSearchSourceKey !== $scope.searchSourceKey.toUpperCase() || cacheSiteId !== siteId) {
+				var match = false;
+
+				if (siteId) {
+					cacheSearchSourceKey = $scope.searchSourceKey.toUpperCase();
+					cacheSiteId = siteId;
+
+					searchApplications = {};
+					$.each($scope.applications, function (appName, streams) {
+						$.each(streams, function (i, stream) {
+							var groupName = stream.dataSource;
+							if(
+								stream.siteId === siteId && (
+									groupName.toUpperCase().indexOf(cacheSearchSourceKey) >= 0 ||
+									stream.streamId.toUpperCase().indexOf(cacheSearchSourceKey) >= 0
+								)
+							) {
+								match = true;
+								var group = searchApplications[groupName] = searchApplications[groupName] || [];
+								group.push(stream);
+							}
+						});
 					});
-				});
+				}
 
 				if(!match) {
 					searchApplications = null;
@@ -304,6 +311,15 @@
 			return false;
 		};
 
+
+		$scope.checkPolicyName = function () {
+			if($scope.policy.name.length > 50) {
+				return "length should less than 50";
+			}
+			return false;
+		};
+
+
 		$scope.addPublisherConfirm = function () {
 			if($scope.addPublisherType === "exist") {
 				$scope.publisher = $.extend({
@@ -325,7 +341,9 @@
 			return (
 				!$scope.saveLock &&
 				$scope.policy.name &&
+				!$scope.checkPolicyName() &&
 				common.number.parse($scope.policy.parallelismHint) > 0 &&
+				$scope.policy.siteId &&
 				$scope.policy.definition.value &&
 				$scope.policy.outputStreams.length &&
 				$scope.policyPublisherList.length
@@ -371,7 +389,7 @@
 								title: "Done",
 								content: "Close dialog to go to the policy detail page."
 							}, function () {
-								$wrapState.go("policyDetail", {name: $scope.policy.name});
+								$wrapState.go("policyDetail", {name: $scope.policy.name, siteId: $scope.policy.siteId});
 							});
 						}, function (res) {
 							// Link Failed
@@ -383,9 +401,15 @@
 							$scope.policyLock = false;
 						});
 					}, function (res) {
+						var errormsg = "";
+						if(typeof res.data.message !== 'undefined') {
+							errormsg = res.data.message;
+						} else {
+							errormsg = res.data.errors;
+						}
 						$.dialog({
 							title: "OPS",
-							content: "Create policy failed: " + res.data.message
+							content: "Create policy failed: " + errormsg
 						});
 						$scope.policyLock = false;
 					});

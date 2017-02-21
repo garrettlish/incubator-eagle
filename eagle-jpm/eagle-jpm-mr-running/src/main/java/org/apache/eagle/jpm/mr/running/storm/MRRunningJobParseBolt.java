@@ -19,6 +19,7 @@
 package org.apache.eagle.jpm.mr.running.storm;
 
 import com.typesafe.config.Config;
+import org.apache.eagle.jpm.analyzer.mr.MRJobPerformanceAnalyzer;
 import org.apache.eagle.jpm.mr.running.MRRunningJobConfig;
 import org.apache.eagle.jpm.mr.running.parser.MRJobParser;
 import org.apache.eagle.jpm.mr.running.recover.MRRunningJobManager;
@@ -48,7 +49,6 @@ public class MRRunningJobParseBolt extends BaseRichBolt {
     private Map<String, MRJobParser> runningMRParsers;
     private transient MRRunningJobManager runningJobManager;
     private MRRunningJobConfig.EagleServiceConfig eagleServiceConfig;
-    private ResourceFetcher resourceFetcher;
     private List<String> configKeys;
     private Config config;
 
@@ -70,7 +70,6 @@ public class MRRunningJobParseBolt extends BaseRichBolt {
         this.executorService = Executors.newFixedThreadPool(endpointConfig.parseJobThreadPoolSize);
 
         this.runningJobManager = new MRRunningJobManager(zkStateConfig);
-        this.resourceFetcher = new RMResourceFetcher(endpointConfig.rmUrls);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class MRRunningJobParseBolt extends BaseRichBolt {
         MRJobParser applicationParser;
         if (!runningMRParsers.containsKey(appInfo.getId())) {
             applicationParser = new MRJobParser(endpointConfig, eagleServiceConfig,
-                    appInfo, mrJobs, runningJobManager, this.resourceFetcher, configKeys, this.config);
+                    appInfo, mrJobs, runningJobManager, configKeys, this.config);
             runningMRParsers.put(appInfo.getId(), applicationParser);
             LOG.info("create application parser for {}", appInfo.getId());
         } else {

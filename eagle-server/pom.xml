@@ -17,9 +17,7 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>eagle-parent</artifactId>
         <groupId>org.apache.eagle</groupId>
@@ -177,6 +175,12 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dumbster</groupId>
+            <artifactId>dumbster</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -222,14 +226,12 @@
                  ========================================================================================================= -->
 
             <dependencies>
-                <!-- App: Example Application -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-app-example</artifactId>
                     <version>${project.version}</version>
                 </dependency>
 
-                <!-- App: HBase Security Monitoring -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-security-hbase-auditlog</artifactId>
@@ -247,7 +249,6 @@
                     <version>${project.version}</version>
                 </dependency>
 
-                <!-- App: Oozie  Auditlog monitoring -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-security-oozie-auditlog</artifactId>
@@ -269,7 +270,6 @@
                     </exclusions>
                 </dependency>
 
-                <!-- App: hdfs audit log monitoring -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-security-hdfs-auditlog</artifactId>
@@ -281,14 +281,12 @@
                     <version>${project.version}</version>
                 </dependency>
 
-                <!-- App: GC log monitoring -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-gc</artifactId>
                     <version>${project.version}</version>
                 </dependency>
 
-                <!--App: Job Performance Monitoring -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-jpm-web</artifactId>
@@ -320,13 +318,12 @@
                     <version>${project.version}</version>
                 </dependency>
 
-                <!-- App: Hadoop Queue Running Monitoring-->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-hadoop-queue</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-                
+
                 <!-- add topology health check-->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
@@ -334,7 +331,6 @@
                     <version>${project.version}</version>
                 </dependency>
 
-                <!--- App: HadoopMetricMonitorApp -->
                 <dependency>
                     <groupId>org.apache.eagle</groupId>
                     <artifactId>eagle-hadoop-metric</artifactId>

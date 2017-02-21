@@ -241,7 +241,7 @@ class KafkaMetricSender(MetricSender):
 
     def open(self):
         logging.info("Opening kafka connection for producer")
-        self.kafka_client = KafkaClient(self.broker_list, timeout=55)
+        self.kafka_client = KafkaClient(self.broker_list, timeout=50)
         self.kafka_producer = SimpleProducer(self.kafka_client, batch_send=False, batch_send_every_n=500,
                                              batch_send_every_t=30)
         self.start_time = time.time()
@@ -295,23 +295,26 @@ class MetricCollector(threading.Thread):
         super(MetricCollector, self).start()
 
     def collect(self, msg):
-        if not msg.has_key("timestamp"):
-            msg["timestamp"] = int(round(time.time() * 1000))
-        if msg.has_key("value"):
-            msg["value"] = float(str(msg["value"]))
-        if not msg.has_key("host") or len(msg["host"]) == 0:
-            raise Exception("host is null: " + str(msg))
-        if not msg.has_key("site"):
-            msg["site"] = self.config["env"]["site"]
-        if len(self.filters) == 0:
-            self.sender.send(msg)
-            return
-        else:
-            for filter in self.filters:
-                if filter.filter_metric(msg):
-                    self.sender.send(msg)
-                    return
-        # logging.info("Drop metric: " + str(msg))
+        try:
+            if not msg.has_key("timestamp"):
+                msg["timestamp"] = int(round(time.time() * 1000))
+            if msg.has_key("value"):
+                msg["value"] = float(str(msg["value"]))
+            if not msg.has_key("host") or len(msg["host"]) == 0:
+                raise Exception("host is null: " + str(msg))
+            if not msg.has_key("site"):
+                msg["site"] = self.config["env"]["site"]
+            if len(self.filters) == 0:
+                self.sender.send(msg)
+                return
+            else:
+                for filter in self.filters:
+                    if filter.filter_metric(msg):
+                        self.sender.send(msg)
+                        return
+        except Exception as e:
+            logging.error("Failed to emit metric: %s" % msg)
+            logging.exception(e)
 
     def close(self):
         self.sender.close()
@@ -340,18 +343,17 @@ class Runner(object):
                     logging.exception(e)
             for collector in collectors:
                 collector.join(timeout=55)
-            exit(0)
+                collector.close()
         except BaseException as e:
             if not isinstance(e, SystemExit):
                 logging.exception(e)
-                exit(1)
         finally:
             for collector in collectors:
                 if not collector.is_closed():
                     collector.close()
 
     @staticmethod
-    def run(*collectors):
+    def run_async(*collectors):
         config = None
         argv = sys.argv
         if len(argv) == 1:
@@ -368,7 +370,7 @@ class Runner(object):
             logging.info("Starting %s", sub_process)
             sub_process.start()
             logging.info("Current PID: %s, subprocess PID: %s", current_process.pid, sub_process.pid)
-            sub_process.join(timeout = 55)
+            sub_process.join(timeout = 56)
         except BaseException as e:
             logging.exception(e)
         finally:
@@ -376,6 +378,25 @@ class Runner(object):
                 logging.info("%s is still alive, terminating", sub_process)
                 sub_process.terminate()
             logging.info("%s exit code: %s", sub_process, sub_process.exitcode)
+            exit(0)
+
+    @staticmethod
+    def run(*collectors):
+        config = None
+        argv = sys.argv
+        current_process=multiprocessing.current_process()
+        if len(argv) == 1:
+            config = Helper.load_config()
+        elif len(argv) == 2:
+            config = Helper.load_config(argv[1])
+        else:
+            raise Exception("Usage: " + argv[0] + " CONFIG_FILE_PATH, but given too many arguments: " + str(argv))
+        try:
+            Runner.worker(collectors, config)
+        except BaseException as e:
+            logging.exception(e)
+        finally:
+            logging.info("%s (PID: %s) exit", current_process.name, current_process.pid)
             exit(0)
 
 class JmxMetricCollector(MetricCollector):
@@ -429,13 +450,13 @@ class JmxMetricCollector(MetricCollector):
         reader_threads = []
         for source in self.input_components:
             reader_thread=threading.Thread(target=self.jmx_reader, args=[source])
-            reader_thread.daemon = True
+            reader_thread.daemon = False
             logging.info(reader_thread.name + " starting")
             reader_thread.start()
             reader_threads.append(reader_thread)
         for reader_thread in reader_threads:
             logging.info(reader_thread.name + " stopping")
-            reader_thread.join(timeout = 55)
+            reader_thread.join(timeout = 45)
 
         logging.info("Jmx reading threads (num: "+size+") finished")
 

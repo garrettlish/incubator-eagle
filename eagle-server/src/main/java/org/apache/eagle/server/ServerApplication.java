@@ -17,8 +17,10 @@
 package org.apache.eagle.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.hubspot.dropwizard.guice.GuiceBundle;
 import com.sun.jersey.api.core.PackagesResourceConfig;
+import com.typesafe.config.Config;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.lifecycle.Managed;
@@ -29,12 +31,16 @@ import io.swagger.jaxrs.listing.ApiListingResource;
 import org.apache.eagle.alert.coordinator.CoordinatorListener;
 import org.apache.eagle.alert.resource.SimpleCORSFiler;
 import org.apache.eagle.app.service.ApplicationHealthCheckService;
+import org.apache.eagle.app.service.ApplicationProviderService;
+import org.apache.eagle.app.spi.ApplicationProvider;
 import org.apache.eagle.common.Version;
+import org.apache.eagle.common.utils.ReflectionsHelper;
 import org.apache.eagle.log.base.taggedlog.EntityJsonModule;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
+import org.apache.eagle.log.entity.repo.EntityRepositoryScanner;
 import org.apache.eagle.metadata.service.ApplicationStatusUpdateService;
 import org.apache.eagle.server.authentication.BasicAuthProviderBuilder;
-import org.apache.eagle.server.task.ApplicationTask;
+import org.apache.eagle.server.task.ManagedService;
 import org.apache.eagle.server.module.GuiceBundleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +48,20 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
+import static org.apache.eagle.app.service.impl.ApplicationHealthCheckServiceImpl.HEALTH_CHECK_PATH;
+
 class ServerApplication extends Application<ServerConfig> {
     private static final Logger LOG = LoggerFactory.getLogger(ServerApplication.class);
     @Inject
     private ApplicationStatusUpdateService applicationStatusUpdateService;
     @Inject
     private ApplicationHealthCheckService applicationHealthCheckService;
+    @Inject
+    private ApplicationProviderService applicationProviderService;
+    @Inject
+    private Injector injector;
+    @Inject
+    private Config config;
 
     @Override
     public void initialize(Bootstrap<ServerConfig> bootstrap) {
@@ -60,6 +74,12 @@ class ServerApplication extends Application<ServerConfig> {
 
         LOG.debug("Initializing guice injector context for current ServerApplication");
         guiceBundle.getInjector().injectMembers(this);
+
+        try {
+            EntityRepositoryScanner.scan();
+        } catch (IllegalAccessException | InstantiationException e) {
+            LOG.error("Failed to scan entity repository", e);
+        }
     }
 
     @Override
@@ -101,13 +121,33 @@ class ServerApplication extends Application<ServerConfig> {
         // Context listener
         environment.servlets().addServletListeners(new CoordinatorListener());
 
+        registerAppServices(environment);
+    }
+
+    private void registerAppServices(Environment environment) {
         // Run application status service in background
-        Managed updateAppStatusTask = new ApplicationTask(applicationStatusUpdateService);
+        LOG.debug("Registering ApplicationStatusUpdateService");
+        Managed updateAppStatusTask = new ManagedService(applicationStatusUpdateService);
         environment.lifecycle().manage(updateAppStatusTask);
 
-        // Initialize application health check environment
-        applicationHealthCheckService.init(environment);
-        Managed appHealthCheckTask = new ApplicationTask(applicationHealthCheckService);
-        environment.lifecycle().manage(appHealthCheckTask);
+        // Initialize application extended health checks.
+        if (config.hasPath(HEALTH_CHECK_PATH)) {
+            LOG.debug("Registering ApplicationHealthCheckService");
+            applicationHealthCheckService.init(environment);
+            environment.lifecycle().manage(new ManagedService(applicationHealthCheckService));
+        }
+
+        // Load application shared extension services.
+        LOG.debug("Registering application shared extension services");
+        for (ApplicationProvider<?> applicationProvider : applicationProviderService.getProviders()) {
+            applicationProvider.getSharedServices(config).ifPresent((services -> {
+                services.forEach(service -> {
+                    LOG.info("Registering {} for {}", service.getClass().getCanonicalName(),applicationProvider.getApplicationDesc().getType());
+                    injector.injectMembers(service);
+                    environment.lifecycle().manage(new ManagedService(service));
+                });
+                LOG.info("Registered {} services for {}", services.size(), applicationProvider.getApplicationDesc().getType());
+            }));
+        }
     }
 }

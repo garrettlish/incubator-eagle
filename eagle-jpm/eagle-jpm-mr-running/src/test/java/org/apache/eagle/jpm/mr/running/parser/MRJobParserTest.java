@@ -24,6 +24,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.apache.curator.test.TestingServer;
+import org.apache.eagle.jpm.analyzer.mr.MRJobPerformanceAnalyzer;
 import org.apache.eagle.jpm.mr.running.MRRunningJobConfig;
 import org.apache.eagle.jpm.mr.running.parser.metrics.JobExecutionMetricsCreationListener;
 import org.apache.eagle.jpm.mr.running.recover.MRRunningJobManager;
@@ -37,8 +38,8 @@ import org.apache.eagle.jpm.util.resourcefetch.model.AppInfo;
 import org.apache.eagle.jpm.util.resourcefetch.model.AppsWrapper;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.service.client.impl.EagleServiceClientImpl;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -131,7 +132,7 @@ public class MRJobParserTest {
         MRRunningJobManager runningJobManager = new MRRunningJobManager(mrRunningJobConfig.getZkStateConfig());
         RMResourceFetcher resourceFetcher = new RMResourceFetcher(mrRunningJobConfig.getEndpointConfig().rmUrls);
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -186,7 +187,7 @@ public class MRJobParserTest {
         MRRunningJobManager runningJobManager = new MRRunningJobManager(mrRunningJobConfig.getZkStateConfig());
         RMResourceFetcher resourceFetcher = new RMResourceFetcher(mrRunningJobConfig.getEndpointConfig().rmUrls);
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -228,7 +229,7 @@ public class MRJobParserTest {
         MRRunningJobManager runningJobManager = new MRRunningJobManager(mrRunningJobConfig.getZkStateConfig());
         RMResourceFetcher resourceFetcher = new RMResourceFetcher(mrRunningJobConfig.getEndpointConfig().rmUrls);
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -247,7 +248,7 @@ public class MRJobParserTest {
         Assert.assertTrue(curator.checkExists().forPath(ZK_JOB_PATH) == null);
         Assert.assertTrue(curator.checkExists().forPath(ZK_APP_PATH) == null);
         Assert.assertTrue(entities.isEmpty());
-        verify(client, times(1)).create(any());
+        verify(client, times(0)).create(any());
     }
 
 
@@ -272,7 +273,7 @@ public class MRJobParserTest {
         MRRunningJobManager runningJobManager = new MRRunningJobManager(mrRunningJobConfig.getZkStateConfig());
         RMResourceFetcher resourceFetcher = new RMResourceFetcher(mrRunningJobConfig.getEndpointConfig().rmUrls);
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -318,7 +319,7 @@ public class MRJobParserTest {
         RMResourceFetcher resourceFetcher = mock(RMResourceFetcher.class);
         when(resourceFetcher.getResource(any())).thenReturn(Collections.emptyList());
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -335,13 +336,13 @@ public class MRJobParserTest {
         Assert.assertTrue(jobIdToJobConfig.isEmpty());
         Assert.assertTrue(jobIdToJobExecutionAPIEntity.size() == 1);
         JobExecutionAPIEntity jobExecutionAPIEntity = jobIdToJobExecutionAPIEntity.get(JOB_ID);
-        Assert.assertEquals(Constants.AppState.FINISHED.toString(), jobExecutionAPIEntity.getInternalState());
+        Assert.assertEquals(Constants.AppState.RUNNING.toString(), jobExecutionAPIEntity.getInternalState());
         Assert.assertEquals(Constants.AppState.RUNNING.toString(), jobExecutionAPIEntity.getCurrentState());
-        Assert.assertTrue(mrJobParser.status() == MRJobParser.ParserStatus.APP_FINISHED);
+        Assert.assertTrue(mrJobParser.status() == MRJobParser.ParserStatus.FINISHED);
         Assert.assertTrue(curator.checkExists().forPath(ZK_JOB_PATH) == null);
         Assert.assertTrue(curator.checkExists().forPath(ZK_APP_PATH) == null);
         Assert.assertTrue(entities.isEmpty());
-        verify(client, times(1)).create(any());
+        verify(client, times(0)).create(any());
     }
 
 
@@ -357,7 +358,7 @@ public class MRJobParserTest {
             eagleServiceConfig.username,
             eagleServiceConfig.password).thenReturn(client);
         when(client.create(any())).thenThrow(Exception.class).thenReturn(null);
-        when(client.getJerseyClient()).thenReturn(new Client());
+        //when(client.getJerseyClient()).thenReturn(new Client());
         mockInputJobSteam("/mrjob_30784.json", JOB_URL);
         mockInputJobSteamWithException(JOB_COUNT_URL);
         mockGetConnection("/mrconf_30784.xml");
@@ -377,7 +378,7 @@ public class MRJobParserTest {
         RMResourceFetcher resourceFetcher = mock(RMResourceFetcher.class);
         when(resourceFetcher.getResource(any())).thenReturn(Collections.emptyList());
         MRJobParser mrJobParser = new MRJobParser(mrRunningJobConfig.getEndpointConfig(), mrRunningJobConfig.getEagleServiceConfig(),
-                app1, mrJobs, runningJobManager, resourceFetcher, confKeyKeys, config);
+                app1, mrJobs, runningJobManager, confKeyKeys, config);
 
 
         Map<String, JobExecutionAPIEntity> jobIdToJobExecutionAPIEntity = getMrJobs(mrJobParser);
@@ -391,17 +392,17 @@ public class MRJobParserTest {
 
         mrJobParser.run();
 
-        Assert.assertTrue(jobIdToJobConfig.isEmpty());
+        Assert.assertTrue(!jobIdToJobConfig.isEmpty());
         Assert.assertTrue(jobIdToJobExecutionAPIEntity.size() == 1);
         JobExecutionAPIEntity jobExecutionAPIEntity = jobIdToJobExecutionAPIEntity.get(JOB_ID);
-        Assert.assertEquals(Constants.AppState.FINISHED.toString(), jobExecutionAPIEntity.getInternalState());
+        Assert.assertEquals(Constants.AppState.RUNNING.toString(), jobExecutionAPIEntity.getInternalState());
         Assert.assertEquals(Constants.AppState.RUNNING.toString(), jobExecutionAPIEntity.getCurrentState());
-        Assert.assertTrue(mrJobParser.status() == MRJobParser.ParserStatus.APP_FINISHED);
-        Assert.assertTrue(curator.checkExists().forPath(ZK_JOB_PATH) == null);
-        Assert.assertTrue(curator.checkExists().forPath(ZK_APP_PATH) == null);
+        Assert.assertTrue(mrJobParser.status() == MRJobParser.ParserStatus.FINISHED);
+        Assert.assertTrue(curator.checkExists().forPath(ZK_JOB_PATH) != null);
+        Assert.assertTrue(curator.checkExists().forPath(ZK_APP_PATH) != null);
         Assert.assertTrue(entities.isEmpty());
         verify(client, times(2)).create(any());
-        verify(client, times(2)).getJerseyClient();
+        //verify(client, times(1)).getJerseyClient();
         verify(client, times(1)).close();
 
     }

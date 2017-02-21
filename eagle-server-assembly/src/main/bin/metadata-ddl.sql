@@ -46,21 +46,21 @@ CREATE TABLE IF NOT EXISTS sites (
 -- eagle security module metadata
 
 CREATE TABLE IF NOT EXISTS hdfs_sensitivity_entity (
-  site varchar(20) DEFAULT NULL,
-  filedir varchar(100) DEFAULT NULL,
+  site varchar(20) NOT NULL,
+  filedir varchar(100) NOT NULL,
   sensitivity_type varchar(20) DEFAULT NULL,
   primary key (site, filedir)
 );
 
 CREATE TABLE IF NOT EXISTS ip_securityzone (
-  iphost varchar(100) DEFAULT NULL,
+  iphost varchar(100) NOT NULL,
   security_zone varchar(100) DEFAULT NULL,
   primary key (iphost)
 );
 
 CREATE TABLE IF NOT EXISTS hbase_sensitivity_entity (
-  site varchar(20) DEFAULT NULL,
-  hbase_resource varchar(100) DEFAULT NULL,
+  site varchar(20) NOT NULL,
+  hbase_resource varchar(100) NOT NULL,
   sensitivity_type varchar(20) DEFAULT NULL,
   primary key (site, hbase_resource)
 );
@@ -134,4 +134,5 @@ INSERT INTO publishment_type(id, content) VALUES
 ('Kafka', '{"name":"Kafka","type":"org.apache.eagle.alert.engine.publisher.impl.AlertKafkaPublisher","description":null,"fields":[{"name":"kafka_broker","value":"sandbox.hortonworks.com:6667"},{"name":"topic"}]}'),
 ('Email', '{"name":"Email","type":"org.apache.eagle.alert.engine.publisher.impl.AlertEmailPublisher","description":null,"fields":[{"name":"subject"},{"name":"sender"}, {"name":"recipients"}]}'),
 ('Slack', '{"name":"Slack","type":"org.apache.eagle.alert.engine.publisher.impl.AlertSlackPublisher","description":null,"fields":[{"name":"token"},{"name":"channels"}, {"name":"severitys"}, {"name":"urltemplate"}]}'),
-('Storage', '{"name":"Storage","type":"org.apache.eagle.alert.app.AlertEagleStorePlugin","description":null,"fields":[]}');
+('HBaseStorage', '{"name":"HBaseStorage","type":"org.apache.eagle.alert.app.AlertEagleStorePlugin","description":null,"fields":[]}'),
+('JDBCStorage', '{"name":"JDBCStorage","type":"org.apache.eagle.alert.engine.publisher.impl.AlertEagleStorePlugin","description":null,"fields":[]}');

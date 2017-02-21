@@ -19,7 +19,6 @@
 <application>
     <type>MR_HISTORY_JOB_APP</type>
     <name>Map Reduce History Job</name>
-    <version>0.5.0-incubating</version>
     <configuration>
         <!-- org.apache.eagle.jpm.mr.history.MRHistoryJobConfig -->
         <property>
@@ -35,8 +34,14 @@
             <value>4</value>
         </property>
         <property>
-            <name>stormConfig.historyKafkaSinkTasks</name>
-            <displayName>Sink Task Number</displayName>
+            <name>stormConfig.jobKafkaSinkTasks</name>
+            <displayName>Sink Task Number For Job Stream</displayName>
+            <description>the number tasks of the sink bolt will be assigned</description>
+            <value>1</value>
+        </property>
+        <property>
+            <name>stormConfig.taskAttemptKafkaSinkTasks</name>
+            <displayName>Sink Task Number For Task Attempt Stream</displayName>
             <description>the number tasks of the sink bolt will be assigned</description>
             <value>1</value>
         </property>
@@ -69,10 +74,17 @@
             <required>true</required>
         </property>
         <property>
-            <name>dataSinkConfig.topic</name>
-            <displayName>Destination(Kafka Topic) Of Stream Data</displayName>
-            <value>sandbox_map_reduce_failed_job</value>
-            <description>application emits stream data to this kafka topic</description>
+            <name>dataSinkConfig.MAP_REDUCE_JOB_STREAM.topic</name>
+            <displayName>Destination(Kafka Topic) Of Job Stream Data</displayName>
+            <value>sandbox-map_reduce_job</value>
+            <description>application emits job stream data to this kafka topic</description>
+            <required>true</required>
+        </property>
+        <property>
+            <name>dataSinkConfig.MAP_REDUCE_TASK_ATTEMPT_STREAM.topic</name>
+            <displayName>Destination(Kafka Topic) Of Task Attempt Stream Data</displayName>
+            <value>sandbox-map_reduce_task_attempt</value>
+            <description>application emits task attempt stream data to this kafka topic</description>
             <required>true</required>
         </property>
         <property>
@@ -80,6 +92,13 @@
             <displayName>Broker(Kafka) List Of Stream Data</displayName>
             <value>localhost:6667</value>
             <description>kafka broker list for stream data</description>
+            <required>true</required>
+        </property>
+        <property>
+            <name>dataSourceConfig.zkConnection</name>
+            <displayName>Kafka Zookeeper Quorum</displayName>
+            <value>localhost:2181</value>
+            <description>kafka zookeeper connection</description>
             <required>true</required>
         </property>
         <property>
@@ -144,8 +163,8 @@
     </configuration>
     <streams>
         <stream>
-            <streamId>map_reduce_failed_job_stream</streamId>
-            <description>Map Reduce Failed Job Stream</description>
+            <streamId>MAP_REDUCE_JOB_STREAM</streamId>
+            <description>Map Reduce Job Stream</description>
             <validate>true</validate>
             <columns>
                 <column>
@@ -166,10 +185,6 @@
                 </column>
                 <column>
                     <name>jobDefId</name>
-                    <type>string</type>
-                </column>
-                <column>
-                    <name>jobName</name>
                     <type>string</type>
                 </column>
                 <column>
@@ -194,6 +209,69 @@
                 </column>
                 <column>
                     <name>currentState</name>
+                    <type>string</type>
+                </column>
+            </columns>
+        </stream>
+        <stream>
+            <streamId>MAP_REDUCE_TASK_ATTEMPT_STREAM</streamId>
+            <description>Map Reduce Task Attempt Stream</description>
+            <validate>true</validate>
+            <columns>
+                <column>
+                    <name>site</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>rack</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>hostname</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>user</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>jobType</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>jobDefId</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>jobId</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>taskId</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>taskType</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>taskAttemptId</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>errorCategory</name>
+                    <type>string</type>
+                </column>
+                <column>
+                    <name>startTime</name>
+                    <type>long</type>
+                </column>
+                <column>
+                    <name>endTime</name>
+                    <type>long</type>
+                </column>
+                <column>
+                    <name>taskStatus</name>
                     <type>string</type>
                 </column>
             </columns>

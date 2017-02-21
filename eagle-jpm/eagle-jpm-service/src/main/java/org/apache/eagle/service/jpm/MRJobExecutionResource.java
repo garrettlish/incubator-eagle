@@ -59,30 +59,32 @@ public class MRJobExecutionResource {
                                                     @QueryParam("filterIfMissing") boolean filterIfMissing,
                                                     @QueryParam("parallel") int parallel,
                                                     @QueryParam("metricName") String metricName,
-                                                    @QueryParam("verbose") Boolean verbose) {
+                                                    @QueryParam("verbose") Boolean verbose) throws ParseException {
         GenericServiceAPIResponseEntity response = new GenericServiceAPIResponseEntity();
 
         List<TaggedLogAPIEntity> jobs = new ArrayList<>();
-        List<TaggedLogAPIEntity> finishedJobs = new ArrayList<>();
+        List<JobExecutionAPIEntity> finishedJobs = new ArrayList<>();
         Set<String> jobIds = new HashSet<>();
         final Map<String, Object> meta = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
 
         stopWatch.start();
-        String jobQuery = String.format(query, Constants.JPA_JOB_EXECUTION_SERVICE_NAME);
-        GenericServiceAPIResponseEntity<TaggedLogAPIEntity> res =
-            resource.search(jobQuery, startTime, endTime, pageSize, startRowkey, treeAgg, timeSeries, intervalmin,
-                top, filterIfMissing, parallel, metricName, verbose);
+        String jobQuery = String.format(query, Constants.MR_JOB_EXECUTION_SERVICE_NAME);
+        GenericServiceAPIResponseEntity<JobExecutionAPIEntity> res =
+            resource.search(jobQuery, startTime, endTime, pageSize, startRowkey, treeAgg, timeSeries, intervalmin, top, filterIfMissing, parallel, metricName, verbose);
         if (res.isSuccess() && res.getObj() != null) {
-            for (TaggedLogAPIEntity o : res.getObj()) {
-                finishedJobs.add(o);
-                jobIds.add(o.getTags().get(MRJobTagName.JOB_ID.toString()));
+            long maxFinishedTime = DateTimeUtil.humanDateToSeconds(endTime) * DateTimeUtil.ONESECOND;
+            for (JobExecutionAPIEntity o : res.getObj()) {
+                if (o.getEndTime() <= maxFinishedTime) {
+                    finishedJobs.add(o);
+                    jobIds.add(o.getTags().get(MRJobTagName.JOB_ID.toString()));
+                }
             }
-            jobQuery = String.format(query, Constants.JPA_RUNNING_JOB_EXECUTION_SERVICE_NAME);
-            res = resource.search(jobQuery, startTime, endTime, pageSize, startRowkey, treeAgg, timeSeries, intervalmin,
-                top, filterIfMissing, parallel, metricName, verbose);
-            if (res.isSuccess() && res.getObj() != null) {
-                for (TaggedLogAPIEntity o : res.getObj()) {
+            jobQuery = String.format(query, Constants.MR_RUNNING_JOB_EXECUTION_SERVICE_NAME);
+            GenericServiceAPIResponseEntity<org.apache.eagle.jpm.mr.runningentity.JobExecutionAPIEntity> runningRes =
+                    resource.search(jobQuery, startTime, endTime, pageSize, startRowkey, treeAgg, timeSeries, intervalmin, top, filterIfMissing, parallel, metricName, verbose);
+            if (runningRes.isSuccess() && runningRes.getObj() != null) {
+                for (org.apache.eagle.jpm.mr.runningentity.JobExecutionAPIEntity o : runningRes.getObj()) {
                     String key = o.getTags().get(MRJobTagName.JOB_ID.toString());
                     if (!ResourceUtils.isDuplicate(jobIds, key)) {
                         jobs.add(o);
@@ -148,7 +150,7 @@ public class MRJobExecutionResource {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String queryFormat = "%s[%s]{*}";
-        String queryString = String.format(queryFormat, Constants.JPA_JOB_EXECUTION_SERVICE_NAME, condition);
+        String queryString = String.format(queryFormat, Constants.MR_JOB_EXECUTION_SERVICE_NAME, condition);
         GenericServiceAPIResponseEntity<TaggedLogAPIEntity> res = ResourceUtils.getQueryResult(queryString, null, null);
         if (res.isSuccess() && res.getObj() != null) {
             for (TaggedLogAPIEntity o : res.getObj()) {
@@ -156,7 +158,7 @@ public class MRJobExecutionResource {
                 jobIds.add(o.getTags().get(MRJobTagName.JOB_ID.toString()));
             }
         }
-        queryString = String.format(queryFormat, Constants.JPA_RUNNING_JOB_EXECUTION_SERVICE_NAME, condition);
+        queryString = String.format(queryFormat, Constants.MR_RUNNING_JOB_EXECUTION_SERVICE_NAME, condition);
         res = ResourceUtils.getQueryResult(queryString, null, null);
         if (res.isSuccess() && res.getObj() != null) {
             for (TaggedLogAPIEntity o : res.getObj()) {
@@ -212,13 +214,13 @@ public class MRJobExecutionResource {
             response.errMessage = e.getMessage();
             return response;
         }
-        String query = String.format("%s[@site=\"%s\"]{@startTime,@endTime,@jobType,@jobId}", Constants.JPA_JOB_EXECUTION_SERVICE_NAME, site);
+        String query = String.format("%s[@site=\"%s\"]{@startTime,@endTime,@jobType,@jobId}", Constants.MR_JOB_EXECUTION_SERVICE_NAME, site);
         GenericServiceAPIResponseEntity<JobExecutionAPIEntity> historyRes = ResourceUtils.getQueryResult(query, searchStartTime, searchEndTime);
         if (!historyRes.isSuccess() || historyRes.getObj() == null) {
             response.errMessage = String.format("Catch an exception during fetch history jobs: %s with query=%s", historyRes.getException(), query);
             return response;
         }
-        query = String.format("%s[@site=\"%s\"]{@startTime,@endTime,@jobType,@jobId}", Constants.JPA_RUNNING_JOB_EXECUTION_SERVICE_NAME, site);
+        query = String.format("%s[@site=\"%s\"]{@startTime,@endTime,@jobType,@jobId}", Constants.MR_RUNNING_JOB_EXECUTION_SERVICE_NAME, site);
         GenericServiceAPIResponseEntity<org.apache.eagle.jpm.mr.runningentity.JobExecutionAPIEntity> runningRes = ResourceUtils.getQueryResult(query, searchStartTime, searchEndTime);
         if (!runningRes.isSuccess() || runningRes.getObj() == null) {
             response.errMessage = String.format("Catch an exception during fetch running jobs: %s with query=%s", runningRes.getException(), query);
@@ -287,7 +289,7 @@ public class MRJobExecutionResource {
             return response;
         }
         String query = String.format("%s[@site=\"%s\" AND @startTime<=\"%s\" AND @endTime>=\"%s\"]{@startTime,@endTime}",
-            Constants.JPA_JOB_EXECUTION_SERVICE_NAME, site, timePointsInMills, timePointsInMills);
+            Constants.MR_JOB_EXECUTION_SERVICE_NAME, site, timePointsInMills, timePointsInMills);
         GenericServiceAPIResponseEntity<JobExecutionAPIEntity> historyRes = ResourceUtils.getQueryResult(query, searchStartTime, searchEndTime);
         if (!historyRes.isSuccess() || historyRes.getObj() == null) {
             return historyRes;
@@ -331,7 +333,7 @@ public class MRJobExecutionResource {
             response.errMessage = "IllegalArgument: site, startTime, endTime, or timeDistInSecs is null";
             return response;
         }
-        String query = String.format("%s[@site=\"%s\"]{@durationTime,@jobType}", Constants.JPA_JOB_EXECUTION_SERVICE_NAME, site);
+        String query = String.format("%s[@site=\"%s\"]{@durationTime,@jobType}", Constants.MR_JOB_EXECUTION_SERVICE_NAME, site);
         GenericServiceAPIResponseEntity<JobExecutionAPIEntity> historyRes = ResourceUtils.getQueryResult(query, startTime, endTime);
         if (!historyRes.isSuccess() || historyRes.getObj() == null) {
             response.errMessage = String.format("Catch an exception: %s with query=%s", historyRes.getException(), query);

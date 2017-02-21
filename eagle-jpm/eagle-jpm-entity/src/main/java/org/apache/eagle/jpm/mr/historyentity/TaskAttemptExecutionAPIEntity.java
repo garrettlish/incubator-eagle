@@ -21,17 +21,18 @@ package org.apache.eagle.jpm.mr.historyentity;
 import org.apache.eagle.jpm.util.Constants;
 import org.apache.eagle.jpm.util.jobcounter.JobCounters;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eaglejpa_task")
 @ColumnFamily("f")
 @Prefix("taexec")
-@Service(Constants.JPA_TASK_ATTEMPT_EXECUTION_SERVICE_NAME)
+@Service(Constants.MR_TASK_ATTEMPT_EXECUTION_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 @Indexes({
-    @Index(name = "Index_1_jobId", columns = { "jobId" }, unique = false)
+        @Index(name = "Index_1_jobId", columns = { "jobId" }, unique = false),
+        @Index(name = "Index_1_taskAttemptId", columns = { "taskAttemptId" }, unique = true)
     })
 public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
     @Column("a")
@@ -46,8 +47,40 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
     private String error;
     @Column("f")
     private JobCounters jobCounters;
+    // new added
     @Column("g")
-    private String taskAttemptID;
+    private long shuffleFinishTime;
+    @Column("h")
+    private long sortFinishTime;
+    @Column("i")
+    private long mapFinishTime;
+
+    public long getShuffleFinishTime() {
+        return shuffleFinishTime;
+    }
+
+    public void setShuffleFinishTime(long shuffleFinishTime) {
+        this.shuffleFinishTime = shuffleFinishTime;
+        valueChanged("shuffleFinishTime");
+    }
+
+    public long getSortFinishTime() {
+        return sortFinishTime;
+    }
+
+    public void setSortFinishTime(long sortFinishTime) {
+        this.sortFinishTime = sortFinishTime;
+        valueChanged("sortFinishTime");
+    }
+
+    public long getMapFinishTime() {
+        return mapFinishTime;
+    }
+
+    public void setMapFinishTime(long mapFinishTime) {
+        this.mapFinishTime = mapFinishTime;
+        valueChanged("mapFinishTime");
+    }
 
     public String getTaskStatus() {
         return taskStatus;
@@ -55,7 +88,7 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setTaskStatus(String taskStatus) {
         this.taskStatus = taskStatus;
-        pcs.firePropertyChange("taskStatus", null, null);
+        valueChanged("taskStatus");
     }
 
     public long getStartTime() {
@@ -64,7 +97,7 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
-        pcs.firePropertyChange("startTime", null, null);
+        valueChanged("startTime");
     }
 
     public long getEndTime() {
@@ -73,7 +106,7 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
-        pcs.firePropertyChange("endTime", null, null);
+        valueChanged("endTime");
     }
 
     public long getDuration() {
@@ -82,7 +115,7 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setDuration(long duration) {
         this.duration = duration;
-        pcs.firePropertyChange("duration", null, null);
+        valueChanged("duration");
     }
 
     public String getError() {
@@ -91,7 +124,7 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setError(String error) {
         this.error = error;
-        pcs.firePropertyChange("error", null, null);
+        valueChanged("error");
     }
 
     public JobCounters getJobCounters() {
@@ -100,15 +133,6 @@ public class TaskAttemptExecutionAPIEntity extends JobBaseAPIEntity {
 
     public void setJobCounters(JobCounters jobCounters) {
         this.jobCounters = jobCounters;
-        pcs.firePropertyChange("jobCounters", null, null);
-    }
-
-    public String getTaskAttemptID() {
-        return taskAttemptID;
-    }
-
-    public void setTaskAttemptID(String taskAttemptID) {
-        this.taskAttemptID = taskAttemptID;
-        pcs.firePropertyChange("taskAttemptID", null, null);
+        valueChanged("jobCounters");
     }
 }

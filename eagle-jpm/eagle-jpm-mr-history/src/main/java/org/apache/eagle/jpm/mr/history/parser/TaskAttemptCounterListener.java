@@ -18,7 +18,6 @@
 
 package org.apache.eagle.jpm.mr.history.parser;
 
-import org.apache.eagle.jpm.mr.history.MRHistoryJobConfig;
 import org.apache.eagle.jpm.mr.historyentity.JobBaseAPIEntity;
 import org.apache.eagle.jpm.mr.historyentity.TaskAttemptCounterAPIEntity;
 import org.apache.eagle.jpm.mr.historyentity.TaskAttemptExecutionAPIEntity;
@@ -120,7 +119,7 @@ public class TaskAttemptCounterListener implements HistoryJobEntityCreationListe
             eagleServiceConfig.username,
             eagleServiceConfig.password);
 
-        client.getJerseyClient().setReadTimeout(eagleServiceConfig.readTimeoutSeconds * 1000);
+        client.setReadTimeout(eagleServiceConfig.readTimeoutSeconds * 1000);
         List<TaskAttemptCounterAPIEntity> list = new ArrayList<>();
         logger.info("start flushing TaskAttemptCounter entities of total number " + counters.size());
         // create entity
@@ -149,7 +148,6 @@ public class TaskAttemptCounterListener implements HistoryJobEntityCreationListe
         logger.info("end  flushing TaskAttemptCounter entities of total number " + counters.size());
         counters.clear();
         list.clear();
-        client.getJerseyClient().destroy();
         client.close();
     }
 }

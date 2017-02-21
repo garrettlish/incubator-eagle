@@ -21,13 +21,13 @@ package org.apache.eagle.jpm.mr.historyentity;
 import org.apache.eagle.jpm.util.Constants;
 import org.apache.eagle.jpm.util.jobcounter.JobCounters;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eaglejpa_task")
 @ColumnFamily("f")
 @Prefix("texec")
-@Service(Constants.JPA_TASK_EXECUTION_SERVICE_NAME)
+@Service(Constants.MR_TASK_EXECUTION_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 @Indexes({

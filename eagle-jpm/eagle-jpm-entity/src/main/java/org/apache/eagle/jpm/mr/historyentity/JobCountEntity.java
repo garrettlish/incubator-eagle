@@ -21,13 +21,13 @@ package org.apache.eagle.jpm.mr.historyentity;
 import org.apache.eagle.jpm.util.Constants;
 import org.apache.eagle.log.base.taggedlog.TaggedLogAPIEntity;
 import org.apache.eagle.log.entity.meta.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Table("eaglejcount")
 @ColumnFamily("f")
 @Prefix("jcount")
-@Service(Constants.JPA_JOB_COUNT_SERVICE_NAME)
+@Service(Constants.MR_JOB_COUNT_SERVICE_NAME)
 @TimeSeries(true)
 @Partition({"site"})
 public class JobCountEntity extends TaggedLogAPIEntity {

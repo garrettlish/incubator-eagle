@@ -50,7 +50,7 @@ public class TopologyCheckApplicationHealthCheck extends ApplicationHealthCheckB
                 topologyCheckAppConfig.getConfig().getString("service.username"),
                 topologyCheckAppConfig.getConfig().getString("service.password"));
 
-        client.getJerseyClient().setReadTimeout(topologyCheckAppConfig.getConfig().getInt("service.readTimeOutSeconds") * 1000);
+        client.setReadTimeout(topologyCheckAppConfig.getConfig().getInt("service.readTimeOutSeconds") * 1000);
 
         String message = "";
         try {
@@ -71,8 +71,8 @@ public class TopologyCheckApplicationHealthCheck extends ApplicationHealthCheckB
             }
 
             if (!message.isEmpty() || currentTimeStamp - currentProcessTimeStamp > maxDelayTime) {
-                message += String.format("Current process time is %sms, delay %s minutes.",
-                        currentProcessTimeStamp, (currentTimeStamp - currentProcessTimeStamp) * 1.0 / 60000L);
+                message += String.format("Current process time is %sms, delay %s.",
+                        currentProcessTimeStamp, formatMillSeconds(currentTimeStamp - currentProcessTimeStamp));
                 return Result.unhealthy(message);
             } else {
                 return Result.healthy();
@@ -80,7 +80,6 @@ public class TopologyCheckApplicationHealthCheck extends ApplicationHealthCheckB
         } catch (Exception e) {
             return Result.unhealthy(printMessages(message, "An exception was caught when fetch application current process time: ", ExceptionUtils.getStackTrace(e)));
         } finally {
-            client.getJerseyClient().destroy();
             try {
                 client.close();
             } catch (Exception e) {

@@ -24,7 +24,7 @@
 	// ============================================================
 	// =                           Page                           =
 	// ============================================================
-	serviceModule.service('PageConfig', function() {
+	serviceModule.service('PageConfig', function($wrapState) {
 		function PageConfig() {
 		}
 
@@ -33,6 +33,45 @@
 			PageConfig.subTitle = "";
 			PageConfig.navPath = [];
 			PageConfig.hideTitle = false;
+		};
+
+		var cachedNavPath = [];
+		var cachedGenNavPath = [];
+		PageConfig.getNavPath = function () {
+			if (cachedNavPath !== PageConfig.navPath || cachedGenNavPath.length !== cachedNavPath.length) {
+				cachedNavPath = PageConfig.navPath;
+				cachedGenNavPath = $.map(cachedNavPath, function (navPath) {
+					var pathEntity = $.extend({}, navPath);
+
+					if (!pathEntity.path || !pathEntity.param) return pathEntity;
+
+					// Parse param as `key=value` format
+					var params = {};
+					$.each(pathEntity.param, function (i, param) {
+						if (!param) return;
+
+						var match = param.match(/^([^=]+)(=(.*))?$/);
+						var key = match[1];
+						var value = match[3];
+						params[key] = value !== undefined ? value : $wrapState.param[key];
+					});
+
+					// Generate path with param
+					var path = "/" + pathEntity.path.replace(/^[\\\/]/, "");
+					if (params.siteId) {
+						pathEntity.path = "/site/" + $wrapState.param.siteId + path;
+						delete params.siteId;
+					} else {
+						pathEntity.path = path;
+					}
+					pathEntity.path += '?' + $.map(params, function (value, key) {
+						return key + '=' + value;
+					}).join('&');
+
+					return pathEntity;
+				});
+			}
+			return cachedGenNavPath;
 		};
 
 		return PageConfig;
@@ -52,12 +91,12 @@
 
 		var defaultPortalList = [
 			{name: "Home", icon: "home", path: "#/"},
-			{name: "Alert", icon: "bell", showFunc: checkApplication, list: [
+			/* {name: "Alert", icon: "bell", showFunc: checkApplication, list: [
 				{name: "Alerts", path: "#/alerts"},
 				{name: "Policies", path: "#/policies"},
 				{name: "Streams", path: "#/streams"},
 				{name: "Define Policy", path: "#/policy/create"}
-			]}
+			]} */
 		];
 		var adminPortalList = [
 			{name: "Integration", icon: "puzzle-piece", showFunc: checkSite, list: [
@@ -73,11 +112,22 @@
 		var connectedMainPortalList = [];
 		var sitePortals = {};
 
-		var backHome = {name: "Back", icon: "arrow-left", path: "#/"};
-
 		Portal.register = function (portal, isSite) {
 			(isSite ? sitePortalList : mainPortalList).push(portal);
 		};
+
+		function getDefaultSitePortal(site) {
+			return[
+				{name: "Back", icon: "arrow-left", path: "#/"},
+				{name: site.siteName || site.siteId + " Home", icon: "home", path: "#/site/" + site.siteId},
+				{name: "Alert", icon: "bell", list: [
+					{name: "Alerts", path: "#/site/" + site.siteId + "/alerts"},
+					{name: "Policies", path: "#/site/" + site.siteId + "/policies"},
+					{name: "Streams", path: "#/site/" + site.siteId + "/streams"},
+					{name: "Define Policy", path: "#/site/" + site.siteId + "/policy/create"}
+				]},
+			];
+		}
 
 		function convertSitePortal(site, portal) {
 			portal = $.extend({}, portal, {
@@ -93,6 +143,22 @@
 			return portal;
 		}
 
+		/**
+		 * Merge navigation item if same name
+		 */
+		function mergePortalList(list) {
+			var mergedList = [];
+			$.each(list, function (i, portal) {
+				var mergedPortal = common.array.find(portal.name, mergedList, ['name']);
+				if (mergedPortal && portal.list && mergedPortal.list) {
+					mergedPortal.list = mergedPortal.list.concat(portal.list);
+				} else {
+					mergedList.push($.extend({}, portal));
+				}
+			});
+			return mergedList;
+		}
+
 		Portal.refresh = function () {
 			// TODO: check admin
 
@@ -105,17 +171,19 @@
 				};
 			});
 			connectedMainPortalList.push({name: "Sites", icon: "server", showFunc: checkApplication, list: siteList});
+			connectedMainPortalList = mergePortalList(connectedMainPortalList);
 
 			// Site level
 			sitePortals = {};
 			$.each(Site.list, function (i, site) {
-				var siteHome = {name: site.siteName || site.siteId + " Home", icon: "home", path: "#/site/" + site.siteId};
-				sitePortals[site.siteId] = [backHome, siteHome].concat($.map(sitePortalList, function (portal) {
+				var tmpSitePortalList = getDefaultSitePortal(site).concat($.map(sitePortalList, function (portal) {
 					var hasApp = !!common.array.find(portal.application, site.applicationList, "descriptor.type");
 					if(hasApp) {
 						return convertSitePortal(site, portal);
 					}
 				}));
+
+				sitePortals[site.siteId] = mergePortalList(tmpSitePortalList);
 			});
 		};
 

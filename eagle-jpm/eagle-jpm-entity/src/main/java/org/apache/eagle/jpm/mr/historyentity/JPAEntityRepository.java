@@ -30,6 +30,7 @@ public class JPAEntityRepository extends EntityRepository {
         entitySet.add(JobConfigurationAPIEntity.class);
         entitySet.add(JobEventAPIEntity.class);
         entitySet.add(JobExecutionAPIEntity.class);
+        entitySet.add(JobErrorCategoryMappingAPIEntity.class);
 
         entitySet.add(TaskAttemptExecutionAPIEntity.class);
         entitySet.add(TaskExecutionAPIEntity.class);
@@ -37,5 +38,7 @@ public class JPAEntityRepository extends EntityRepository {
         entitySet.add(TaskAttemptCounterAPIEntity.class);
         entitySet.add(JobProcessTimeStampEntity.class);
         entitySet.add(JobCountEntity.class);
+        entitySet.add(TaskAttemptErrorCategoryEntity.class);
+        entitySet.add(JobSuggestionAPIEntity.class);
     }
 }

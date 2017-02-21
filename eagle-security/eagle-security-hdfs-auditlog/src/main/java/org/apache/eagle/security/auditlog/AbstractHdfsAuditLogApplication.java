@@ -28,9 +28,11 @@ import com.typesafe.config.Config;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.eagle.app.StormApplication;
 import org.apache.eagle.app.environment.impl.StormEnvironment;
+import org.apache.eagle.app.messaging.EntityStreamPersist;
 import org.apache.eagle.app.messaging.StormStreamSink;
 import org.apache.eagle.common.config.EagleConfigConstants;
 import org.apache.eagle.dataproc.impl.storm.partition.*;
+import org.apache.eagle.security.traffic.HadoopLogAccumulatorBolt;
 import org.apache.eagle.security.partition.DataDistributionDaoImpl;
 import org.apache.eagle.security.partition.GreedyPartitionAlgorithm;
 import org.apache.eagle.dataproc.impl.storm.kafka.KafkaSpoutProvider;
@@ -44,6 +46,8 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
     public final static String SENSITIVITY_JOIN_TASK_NUM = "topology.numOfSensitivityJoinTasks";
     public final static String IPZONE_JOIN_TASK_NUM = "topology.numOfIPZoneJoinTasks";
     public final static String SINK_TASK_NUM = "topology.numOfSinkTasks";
+    public final static String TRAFFIC_MONITOR_ENABLED = "dataSinkConfig.trafficMonitorEnabled";
+    private final static String TRAFFIC_MONITOR_TASK_NUM = "topology.numOfTrafficMonitorTasks";
 
     @Override
     public StormTopology execute(Config config, StormEnvironment environment) {
@@ -56,6 +60,7 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
         int numOfSensitivityJoinTasks = config.getInt(SENSITIVITY_JOIN_TASK_NUM);
         int numOfIPZoneJoinTasks = config.getInt(IPZONE_JOIN_TASK_NUM);
         int numOfSinkTasks = config.getInt(SINK_TASK_NUM);
+        int numOfTrafficMonitorTasks = config.hasPath(TRAFFIC_MONITOR_TASK_NUM) ? config.getInt(TRAFFIC_MONITOR_TASK_NUM) : numOfParserTasks;
 
         builder.setSpout("ingest", spout, numOfSpoutTasks).setNumTasks(numOfSpoutTasks);
 
@@ -63,7 +68,7 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
         // ingest -> parserBolt
         // ---------------------
 
-        BaseRichBolt parserBolt = getParserBolt();
+        BaseRichBolt parserBolt = getParserBolt(config);
         BoltDeclarer boltDeclarer = builder.setBolt("parserBolt", parserBolt, numOfParserTasks).setNumTasks(numOfParserTasks).shuffleGrouping("ingest");
         boltDeclarer.shuffleGrouping("ingest");
 
@@ -83,6 +88,12 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
         // sensitivityDataJoinBoltDeclarer.fieldsGrouping("parserBolt", new Fields("f1"));
         sensitivityDataJoinBoltDeclarer.shuffleGrouping("parserBolt");
 
+        if (config.hasPath(TRAFFIC_MONITOR_ENABLED) && config.getBoolean(TRAFFIC_MONITOR_ENABLED)) {
+            HadoopLogAccumulatorBolt auditLogAccumulator = new HadoopLogAccumulatorBolt(config);
+            BoltDeclarer auditLogAccumulatorDeclarer = builder.setBolt("logAccumulator", auditLogAccumulator, numOfTrafficMonitorTasks);
+            auditLogAccumulatorDeclarer.setNumTasks(numOfTrafficMonitorTasks).shuffleGrouping("parserBolt");
+        }
+
         // ------------------------------
         // sensitivityJoin -> ipZoneJoin
         // ------------------------------
@@ -101,7 +112,7 @@ public abstract class AbstractHdfsAuditLogApplication extends StormApplication {
         return builder.createTopology();
     }
 
-    public abstract BaseRichBolt getParserBolt();
+    public abstract BaseRichBolt getParserBolt(Config config);
 
     public abstract String getSinkStreamName();
 
