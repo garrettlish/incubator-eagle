@@ -24,7 +24,7 @@
     </parent>
     <groupId>org.apache.eagle</groupId>
     <artifactId>eagle-parent</artifactId>
-    <version>0.5.10-ebay</version>
+    <version>0.5.11-ebay</version>
     <packaging>pom</packaging>
     <name>Eagle::Parent</name>
     <url>https://eagle.apache.org</url>
@@ -250,6 +250,7 @@
         <metrics.version>3.1.0</metrics.version>
         <mapdb.version>3.0.0-M6</mapdb.version>
         <asm.version>5.0</asm.version>
+        <jasypt.version>1.9.2</jasypt.version>
 
         <!-- Streaming -->
         <!--<kafka.version>0.10.0.0</kafka.version>-->
@@ -501,6 +502,11 @@
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>${reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${jasypt.version}</version>
             </dependency>
 
             <!-- Serialization -->

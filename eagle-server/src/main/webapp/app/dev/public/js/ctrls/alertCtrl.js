@@ -49,12 +49,20 @@
 		Time.onReload(loadAlerts, $scope);
 	});
 
-	eagleControllers.controller('alertDetailCtrl', function ($sce, $scope, $wrapState, PageConfig, CompatibleEntity) {
+	eagleControllers.controller('alertDetailCtrl', function ($sce, $scope, $wrapState, PageConfig, CompatibleEntity, Time) {
 		PageConfig.title = "Alert Detail";
 
+		$scope.site = $wrapState.param.siteId;
+
+		var endTime = new Time($wrapState.param.timestamp).add(1, 'd');
+		var startTime = new Time($wrapState.param.timestamp).subtract(7, 'd');
 		$scope.alertList = CompatibleEntity.query("LIST", {
 			query: "AlertService",
-			condition: { alertId: $wrapState.param.alertId }
+			condition: {
+				alertId: $wrapState.param.alertId,
+			},
+			startTime: startTime,
+			endTime: endTime,
 		});
 		$scope.alertList._then(function () {
 			$scope.alert = $scope.alertList[0];
@@ -145,10 +153,11 @@
 		PageConfig.title = "Policy";
 		PageConfig.subTitle = "Detail";
 		PageConfig.navPath = [
-			{title: "Policy List", path: "/policies"},
+			{title: "Policy List", path: "/site/" + $wrapState.param.siteId + "/policies"},
 			{title: "Detail"}
 		];
 
+		$scope.site = $wrapState.param.siteId;
 		$scope.tab = "setting";
 
 		$scope.setTab = function (tab) {
@@ -182,7 +191,7 @@
 
 			Entity.queryMetadata("schedulestates")._then(function (res) {
 				var schedule = res.data || {};
-				$scope.assignment = common.array.find(policyName, schedule.assignments, ["policyName"]) || {};
+				$scope.assignment = common.array.find(policyName, schedule.assignments || [], ["policyName"]) || {};
 
 				var queueList = $.map(schedule.monitoredStreams, function (stream) {
 					return stream.queues;
