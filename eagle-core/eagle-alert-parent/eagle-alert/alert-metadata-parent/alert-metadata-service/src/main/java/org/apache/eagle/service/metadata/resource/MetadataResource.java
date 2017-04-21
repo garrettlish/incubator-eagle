@@ -33,15 +33,13 @@ import org.apache.eagle.alert.metadata.IMetadataDao;
 import org.apache.eagle.alert.metadata.impl.MetadataDaoFactory;
 import org.apache.eagle.alert.metadata.resource.Models;
 import org.apache.eagle.alert.metadata.resource.OpResult;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +52,6 @@ public class MetadataResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetadataResource.class);
 
-    //    private IMetadataDao dao = MetadataDaoFactory.getInstance().getMetadataDao();
     private final IMetadataDao dao;
 
     public MetadataResource() {
@@ -156,14 +153,14 @@ public class MetadataResource {
         OpResult createDataSourceResult = dao.addDataSource(stream.getStreamSource());
         // TODO: Check kafka topic exist or not.
         if (createStreamResult.code == OpResult.SUCCESS
-                && createDataSourceResult.code == OpResult.SUCCESS) {
+            && createDataSourceResult.code == OpResult.SUCCESS) {
             return OpResult.success("Successfully create stream "
-                    + stream.getStreamDefinition().getStreamId()
-                    + ", and datasource "
-                    + stream.getStreamSource().getName());
+                + stream.getStreamDefinition().getStreamId()
+                + ", and datasource "
+                + stream.getStreamSource().getName());
         } else {
             return OpResult.fail("Error: "
-                    + StringUtils.join(new String[]{createDataSourceResult.message, createDataSourceResult.message},","));
+                + StringUtils.join(new String[]{createDataSourceResult.message, createDataSourceResult.message},","));
         }
     }
 
@@ -259,6 +256,27 @@ public class MetadataResource {
         for (StreamDefinition definition : dao.listStreams()) {
             allDefinitions.put(definition.getStreamId(), definition);
         }
+        Objects.requireNonNull(policy, "PolicyDefinition is invalid");
+        if (policy.getActiveSuppressEvent() != null) {
+            SuppressEvent se = policy.getActiveSuppressEvent();
+            String msg = updateSuppressEventExpireTime(se);
+            if (msg != null) {
+                PolicyValidationResult result = new PolicyValidationResult();
+                result.setPolicyDefinition(policy);
+                result.setSuccess(false);
+                result.setMessage(msg);
+                return result;
+            }
+            Preconditions.checkNotNull(se.getSuppressType(), "Suppress type is required");
+            if (se.getExpireTime() == null || !se.isActive()) {
+                policy.setActiveSuppressEvent(null);
+            } else {
+                if (se.getStartTime() == null) {
+                    se.setStartTime(new Date());
+                }
+                LOG.debug("Policy {} suppress event {}", policy.getName(), se);
+            }
+        }
         return PolicyInterpreter.validate(policy, allDefinitions);
     }
 
@@ -289,6 +307,60 @@ public class MetadataResource {
     public List<AlertPublishEvent> getAlertPublishEventByPolicyId(@PathParam("policyId") String policyId,
                                                                   @QueryParam("size") int size) {
         return dao.getAlertPublishEventsByPolicyId(policyId, size);
+    }
+
+    @Path("/policies/{policyId}/action/{suppressType}")
+    @POST
+    public OpResult suppressPolicy(@PathParam("policyId") String policyId,
+                                   @PathParam("suppressType") String suppressType,
+                                   SuppressEvent suppressEvent) {
+        Preconditions.checkNotNull(policyId, "Suppress policyId is required");
+        Preconditions.checkNotNull(suppressType, "Suppress type is required");
+        Preconditions.checkNotNull(suppressEvent, "Suppress duration or expireTime is required");
+        if (Arrays.stream(SuppressType.values())
+            .filter(t -> t.name().equals(suppressType.toLowerCase())).count() <= 0) {
+            return OpResult.badRequest("Only pause and silence suppress types are supported");
+        }
+        suppressEvent.setStartTime(new Date());
+        suppressEvent.setSuppressType(SuppressType.valueOf(suppressType.toLowerCase()));
+        String updateSuppressEventExpireTimeResult = updateSuppressEventExpireTime(suppressEvent);
+        if (updateSuppressEventExpireTimeResult != null) {
+            return OpResult.badRequest(updateSuppressEventExpireTimeResult);
+        }
+        Preconditions.checkNotNull(suppressEvent.getExpireTime(), "Suppress expireTime is invalid");
+        PolicyDefinition policyDefinition = dao.getPolicyById(policyId);
+        Preconditions.checkNotNull(policyDefinition, String.format("Policy %s is not found", policyId));
+
+        if (policyDefinition.getActiveSuppressEvent() != null
+            && !policyDefinition.getActiveSuppressEvent().isActive()) {
+            LOG.debug("Policy {} suppress event {} expired", policyId, suppressEvent);
+            policyDefinition.setActiveSuppressEvent(null);
+        }
+        if (policyDefinition.getActiveSuppressEvent() != null
+            && policyDefinition.getActiveSuppressEvent().getSuppressType() != suppressEvent.getSuppressType()) {
+            return OpResult.badRequest(String.format("Suppress event %s already exists", suppressEvent));
+        }
+        String loggingMsg = String.format("Update suppress event from %s to %s",
+            policyDefinition.getActiveSuppressEvent(), suppressEvent);
+        policyDefinition.setActiveSuppressEvent(suppressEvent);
+        LOG.debug(loggingMsg);
+        return OpResult.success(loggingMsg);
+    }
+
+    private String updateSuppressEventExpireTime(SuppressEvent suppressEvent) {
+        if (StringUtils.isNotBlank(suppressEvent.getDuration())) {
+            try {
+                Period period = Period.parse(suppressEvent.getDuration());
+                long durationSeconds = period.toStandardSeconds().getSeconds();
+                suppressEvent.setExpireTime(Optional.ofNullable(suppressEvent.getExpireTime())
+                    .orElse(new Date(System.currentTimeMillis() + durationSeconds * 1000)));
+            } catch (Exception e) {
+                LOG.warn("Failed to parse duration: " + suppressEvent.getDuration(), e);
+                return String.format("Duration %s is invalid, please input like PT10M which means 10 minutes",
+                    suppressEvent.getDuration());
+            }
+        }
+        return null;
     }
 
     @Path("/policies/{policyId}/publishments")
@@ -520,6 +592,5 @@ public class MetadataResource {
         }
         return results;
     }
-
 
 }

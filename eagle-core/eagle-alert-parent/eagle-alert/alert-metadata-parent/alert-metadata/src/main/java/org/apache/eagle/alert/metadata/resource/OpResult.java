@@ -26,6 +26,7 @@ public class OpResult {
 
     public static final int SUCCESS = 200;
     public static final int FAILURE = 500;
+    public static final int BADREQQUEST = 400;
 
     public static OpResult of(int code, String messsage) {
         OpResult opResult = new OpResult();
@@ -47,4 +48,12 @@ public class OpResult {
         opResult.message = messsage;
         return opResult;
     }
+
+    public static OpResult badRequest(String messsage) {
+        OpResult opResult = new OpResult();
+        opResult.code = BADREQQUEST;
+        opResult.message = messsage;
+        return opResult;
+    }
+
 }

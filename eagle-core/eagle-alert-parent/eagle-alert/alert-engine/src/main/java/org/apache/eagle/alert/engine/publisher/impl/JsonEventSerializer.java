@@ -16,6 +16,7 @@
  */
 package org.apache.eagle.alert.engine.publisher.impl;
 
+import com.google.common.collect.Maps;
 import org.apache.eagle.alert.engine.codec.IEventSerializer;
 import org.apache.eagle.alert.engine.coordinator.StreamColumn;
 import org.apache.eagle.alert.engine.model.AlertStreamEvent;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @since Jul 9, 2016.
@@ -64,6 +66,9 @@ public class JsonEventSerializer implements IEventSerializer {
                 jsonMap.put(columns.get(i).getName(), event.getData()[i]);
             }
         }
+        Optional.ofNullable(event.getContext())
+            .orElse(Maps.newHashMap())
+            .forEach((key, value) -> jsonMap.put(key, value));
         return JsonUtils.writeValueAsString(jsonMap);
     }
 

@@ -16,10 +16,6 @@
  */
 package org.apache.eagle.service.app;
 
-import org.apache.eagle.alert.coordinator.CoordinatorListener;
-import org.apache.eagle.alert.coordinator.resource.CoordinatorResource;
-import org.apache.eagle.alert.resource.SimpleCORSFiler;
-import org.apache.eagle.service.metadata.resource.MetadataResource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.typesafe.config.ConfigFactory;
 import io.dropwizard.Application;
@@ -28,9 +24,13 @@ import io.dropwizard.setup.Environment;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.eagle.alert.coordinator.CoordinatorListener;
+import org.apache.eagle.alert.coordinator.resource.CoordinatorResource;
+import org.apache.eagle.alert.resource.SimpleCORSFiler;
+import org.apache.eagle.service.metadata.resource.MetadataResource;
 
-import java.util.EnumSet;
 import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 
 /**
  * @since Jun 27, 2016.
@@ -59,7 +59,7 @@ public class ServiceApp extends Application<AlertDropWizardConfiguration> {
             ConfigFactory.load();
         }
 
-        environment.getApplicationContext().setContextPath("/rest");
+        environment.getApplicationContext().setContextPath("/api/v1/alerts");
         environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         environment.jersey().register(MetadataResource.class);
@@ -70,7 +70,7 @@ public class ServiceApp extends Application<AlertDropWizardConfiguration> {
         BeanConfig swaggerConfig = new BeanConfig();
         swaggerConfig.setTitle("Alert engine service: metadata and coordinator");
         swaggerConfig.setVersion("v1.2");
-        swaggerConfig.setBasePath("/rest");
+        swaggerConfig.setBasePath("/api/v1/alerts");
         swaggerConfig
             .setResourcePackage("org.apache.eagle.alert.coordinator.resource,org.apache.eagle.service.metadata.resource");
         swaggerConfig.setScan(true);

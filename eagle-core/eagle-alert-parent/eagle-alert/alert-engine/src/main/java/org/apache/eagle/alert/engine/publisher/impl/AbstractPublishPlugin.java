@@ -38,10 +38,13 @@ import java.util.Map;
  */
 public abstract class AbstractPublishPlugin implements AlertPublishPlugin {
 
+    protected static final String NOTIFICATION = "notification";
+
     protected AlertDeduplicator deduplicator;
     protected PublishStatus status;
     protected IEventSerializer serializer;
     protected String pubName;
+    protected boolean notification;
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -89,6 +92,7 @@ public abstract class AbstractPublishPlugin implements AlertPublishPlugin {
             getLogger().error(String.format("initialized failed, use default StringEventSerializer, failure message : {}", e.getMessage()), e);
             serializer = new StringEventSerializer(conf);
         }
+        notification = publishment.getProperties().containsKey(NOTIFICATION) && (Boolean) publishment.getProperties().get(NOTIFICATION);
     }
 
     @Override
@@ -107,5 +111,10 @@ public abstract class AbstractPublishPlugin implements AlertPublishPlugin {
     }
 
     protected abstract Logger getLogger();
+
+    @Override
+    public boolean isNotifiction() {
+        return notification;
+    }
 
 }

@@ -1,0 +1,34 @@
+{
+  "name": "nerveCenter_port_down",
+  "description": "",
+  "inputStreams": [
+    "ncAlertStream"
+  ],
+  "outputStreams": [
+    "ncAlertOutputStream"
+  ],
+  "definition": {
+    "type": "siddhi",
+    "value": "from ncAlertStream select 'nerveCenterAlert' as name, 'network' as namespace, UUID() as docId, timestamp, 'TestJoin' as alertKey, '' as parentKey, dims_component, dims_pod, dims_bubble, dims_entity, dims_dc, severity, severityCode, componentType, entityType, source, message, key, linkedSwitch, linkedSwitchType, localPort, pod, 'nerveCenter' as alertSource, ip, linkedPort, bubble, state, entity, status, dc, 0l as count, 0l as firstOccurrenceTime, 'ncAlertOutputStream' as streamName, monitor, cause, timestamp as lastModifiedTime insert into ncAlertOutputStream;",
+    "properties": {},
+    "inputStreams": [],
+    "outputStreams": []
+  },
+  "policyStatus": "ENABLED",
+  "partitionSpec": [
+    {
+      "streamId": "ncAlertStream",
+      "type": "GROUPBY",
+      "columns": [
+        "entity"
+      ]
+    }
+  ],
+  "activeSuppressEvent": {
+    "suppressType": "pause",
+    "duration": "PT2H",
+    "expression": "name='nerveCenterAlert' and severityCode<=4"
+  },
+  "dedicated": false,
+  "parallelismHint": 2
+}

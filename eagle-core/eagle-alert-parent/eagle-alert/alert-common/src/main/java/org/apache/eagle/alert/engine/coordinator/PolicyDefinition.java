@@ -38,6 +38,7 @@ public class PolicyDefinition implements Serializable {
     private List<String> inputStreams = new ArrayList<>();
     private List<String> outputStreams = new ArrayList<>();
     private String siteId = "default";
+    private SuppressEvent activeSuppressEvent;
 
     private Definition definition;
     private Definition stateDefinition;
@@ -50,6 +51,14 @@ public class PolicyDefinition implements Serializable {
 
     // runtime configuration for policy, these are user-invisible
     private int parallelismHint = 1;
+
+    public SuppressEvent getActiveSuppressEvent() {
+        return activeSuppressEvent;
+    }
+
+    public void setActiveSuppressEvent(SuppressEvent activeSuppressEvent) {
+        this.activeSuppressEvent = activeSuppressEvent;
+    }
 
     public String getName() {
         return name;

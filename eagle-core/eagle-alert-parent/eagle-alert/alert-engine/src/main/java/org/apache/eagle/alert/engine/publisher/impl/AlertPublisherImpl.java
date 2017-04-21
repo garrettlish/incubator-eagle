@@ -17,23 +17,18 @@
 
 package org.apache.eagle.alert.engine.publisher.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.typesafe.config.Config;
 import org.apache.eagle.alert.engine.coordinator.PublishPartition;
 import org.apache.eagle.alert.engine.coordinator.Publishment;
+import org.apache.eagle.alert.engine.coordinator.SuppressType;
 import org.apache.eagle.alert.engine.model.AlertStreamEvent;
 import org.apache.eagle.alert.engine.publisher.AlertPublishPlugin;
 import org.apache.eagle.alert.engine.publisher.AlertPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.typesafe.config.Config;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("rawtypes")
 public class AlertPublisherImpl implements AlertPublisher {
@@ -80,6 +75,13 @@ public class AlertPublisherImpl implements AlertPublisher {
         AlertPublishPlugin plugin = publishPluginMapping.get(partition);
         if (plugin == null) {
             LOG.warn("PublishPartition {} has problems while initializing publish plugin", partition);
+            return;
+        }
+        if (plugin.isNotifiction()
+            && event.getContext().containsKey(SuppressType.silence.name())
+            && (Boolean) event.getContext().get(SuppressType.silence.name())) {
+            LOG.debug("Skip publish since the publisher {} is a notification and the event {} is silenced",
+                partition.getPublishId(), event);
             return;
         }
         event.ensureAlertId();

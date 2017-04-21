@@ -53,4 +53,6 @@ public interface AlertPublishPlugin extends Closeable {
 
     PublishStatus getStatus();
 
+    boolean isNotifiction();
+
 }

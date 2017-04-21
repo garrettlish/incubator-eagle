@@ -1,0 +1,16 @@
+{
+  "name": "network-nc-publish",
+  "type": "org.apache.eagle.alert.engine.publisher.impl.AlertKafkaPublisher",
+  "policyIds": [
+    "nerveCenter_port_down"
+  ],
+  "dedupIntervalMin": "PT0M",
+  "properties": {
+    "kafka_broker": "sherlock-kafka-3505.lvs02.dev.ebayc3.com:9092,sherlock-kafka-3519.lvs02.dev.ebayc3.com:9092,sherlock-kafka-4520.lvs02.dev.ebayc3.com:9092",
+    "topic": "process.network.alerts"
+  },
+  "serializer": "org.apache.eagle.alert.engine.publisher.impl.JsonEventSerializer",
+  "partitionColumns": [
+    "alertKey"
+  ]
+}

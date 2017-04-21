@@ -1,0 +1,259 @@
+{
+  "streamId": "ncAlertStream",
+  "description": "the nerve center alert stream",
+  "validate": false,
+  "timeseries": false,
+  "dataSource": "network_NC_alert_datasource",
+  "columns": [
+    {
+      "name": "timestamp",
+      "type": "LONG",
+      "defaultValue": 0,
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "lastModifiedTime",
+      "type": "LONG",
+      "defaultValue": 0,
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "namespace",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "alertKey",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "parentKey",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dims_component",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dims_pod",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dims_bubble",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dims_entity",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dims_dc",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "severity",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "severityCode",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "componentType",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "entityType",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "source",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "message",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "key",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "linkedSwitch",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "linkedSwitchType",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": false,
+      "description": ""
+    },
+    {
+      "name": "localPort",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "pod",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "alertSource",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "ip",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "component",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "linkedPort",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "bubble",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "state",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "entity",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "status",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "dc",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "count",
+      "type": "LONG",
+      "defaultValue": 0,
+      "required": false
+    },
+    {
+      "name": "firstOccurrenceTime",
+      "type": "LONG",
+      "defaultValue": 0,
+      "required": false
+    },
+    {
+      "name": "docId",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": "the docId for aggregated alerts"
+    },
+    {
+      "name": "monitor",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    },
+    {
+      "name": "cause",
+      "type": "STRING",
+      "defaultValue": "",
+      "required": true,
+      "description": ""
+    }
+  ]
+}
