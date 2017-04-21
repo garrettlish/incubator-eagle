@@ -24,7 +24,7 @@
     </parent>
     <groupId>org.apache.eagle</groupId>
     <artifactId>eagle-parent</artifactId>
-    <version>0.5.11-ebay</version>
+    <version>0.5.12-ebay-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Eagle::Parent</name>
     <url>https://eagle.apache.org</url>
